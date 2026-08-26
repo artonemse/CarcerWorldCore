@@ -1,0 +1,15 @@
+name: CarcerWorldCore
+version: '1.0'
+
+main: org.carcercore.carcerWorldCore.CarcerWorldCore
+api-version: '1.21.11'
+commands:
+  souls:
+    description: View and manage Souls.
+    usage: /souls
+  carcer:
+    aliases: [admin]
+    description: CarcerCraft Admin Command
+    usage: /carcer
+  resetseason:
+    aliases: [seasonreset, endseason]
