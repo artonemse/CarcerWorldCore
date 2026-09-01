@@ -22,6 +22,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
+import Armor.Generic.ArmorStat;
 
 
 public class WeaponListener implements Listener {
@@ -111,6 +112,14 @@ public class WeaponListener implements Listener {
                         player,
                         damage
                 );
+
+        // ================================
+        // ARMOR DAMAGE
+        // ================================
+
+        if (plugin.getArmorManager() != null) {
+            damage *= plugin.getArmorManager().getMultiplier(player, ArmorStat.DAMAGE);
+        }
 
         // ================================
         // CRITICAL STRIKE

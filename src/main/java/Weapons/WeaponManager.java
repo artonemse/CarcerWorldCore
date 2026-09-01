@@ -1,5 +1,6 @@
 package Weapons;
 
+import Armor.Generic.ArmorStat;
 import Enchantments.EnchantType;
 import PlayerData.PlayerData;
 import Skills.SkillType;
@@ -77,24 +78,22 @@ public class WeaponManager {
 
         double baseDamage = getDamage(player);
 
-        int sharpnessLevel =
-                data.getEnchantLevel(EnchantType.SHARPNESS);
+        int sharpnessLevel = data.getEnchantLevel(EnchantType.SHARPNESS);
+        double sharpnessBonus = sharpnessLevel * 2.0;
 
-        double sharpnessBonus =
-                sharpnessLevel * 2.0;
+        int strengthLevel = data.getSkillLevel(SkillType.STRENGTH);
+        double strengthPercent = strengthLevel * 3.0;
 
-        int strengthLevel =
-                data.getSkillLevel(SkillType.STRENGTH);
+        double damageBeforeStrength = baseDamage + sharpnessBonus;
+        double totalDamage = damageBeforeStrength * (1.0 + (strengthPercent / 100.0));
 
-        double strengthPercent =
-                strengthLevel * 3.0;
+        double armorDamagePercent = plugin.getArmorManager() == null
+                ? 0.0
+                : plugin.getArmorManager().getModifierPercent(player, ArmorStat.DAMAGE);
 
-        double damageBeforeStrength =
-                baseDamage + sharpnessBonus;
-
-        double totalDamage =
-                damageBeforeStrength
-                        * (1.0 + (strengthPercent / 100.0));
+        if (plugin.getArmorManager() != null) {
+            totalDamage *= plugin.getArmorManager().getMultiplier(player, ArmorStat.DAMAGE);
+        }
 
         // ================================
         // CREATE WEAPON
@@ -132,6 +131,12 @@ public class WeaponManager {
 
         if (strengthLevel > 0) {
             lore.add(color("&7&l| &fStrength Bonus &6+" + format(strengthPercent) + "%"));
+        }
+        if (armorDamagePercent != 0) {
+            String sign = armorDamagePercent > 0 ? "+" : "";
+            String color = armorDamagePercent > 0 ? "&a" : "&c";
+
+            lore.add(color("&7&l| &fArmor Bonus " + color + sign + format(armorDamagePercent) + "%"));
         }
         if (level >= 100) {
             lore.add(color("&7&l| &fEXP: &aMAX LEVEL"));

@@ -109,6 +109,7 @@ public class PlayerDataManager {
                         0
                 )
         );
+        data.setGems(config.getLong(path + ".gems", 0));
 
         for (EnchantType type : EnchantType.values()) {
             data.setEnchantLevel(
@@ -172,6 +173,7 @@ public class PlayerDataManager {
                 path + ".souls",
                 data.getSouls()
         );
+        config.set(path + ".gems", data.getGems());
 
         for (EnchantType type : EnchantType.values()) {
             config.set(
@@ -187,6 +189,24 @@ public class PlayerDataManager {
             );
         }
 
+        saveFile();
+    }
+
+    public boolean ownsKillEffect(UUID uuid, String effectId) {
+        return config.getBoolean("players." + uuid + ".cosmetics.kill-effects.owned." + effectId.toLowerCase(), false);
+    }
+
+    public void setKillEffectOwned(UUID uuid, String effectId, boolean owned) {
+        config.set("players." + uuid + ".cosmetics.kill-effects.owned." + effectId.toLowerCase(), owned);
+        saveFile();
+    }
+
+    public String getSelectedKillEffect(UUID uuid) {
+        return config.getString("players." + uuid + ".cosmetics.kill-effects.selected", "none");
+    }
+
+    public void setSelectedKillEffect(UUID uuid, String effectId) {
+        config.set("players." + uuid + ".cosmetics.kill-effects.selected", effectId.toLowerCase());
         saveFile();
     }
 

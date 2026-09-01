@@ -3,6 +3,7 @@ version: '1.0'
 
 main: org.carcercore.carcerWorldCore.CarcerWorldCore
 api-version: '1.21.11'
+load: STARTUP
 commands:
   souls:
     description: View and manage Souls.
@@ -13,3 +14,16 @@ commands:
     usage: /carcer
   resetseason:
     aliases: [seasonreset, endseason]
+  gems:
+    description: View and manage Gems.
+  warp:
+    description: Teleport to a warp
+    usage: /warp <name>
+  setwarp:
+      description: Create a warp
+      usage: /setwarp <name>
+      permission: carcer.admin
+  delwarp:
+      description: Delete a warp
+      usage: /delwarp <name>
+      permission: carcer.admin

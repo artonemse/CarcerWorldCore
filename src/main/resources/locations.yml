@@ -1,0 +1,33 @@
+locations:
+
+  blackthorn:
+    name: "Blackthorn Village"
+    world: "Seratari"
+    x: 1217
+    z: -462
+    radius: 120
+    subtitle: "&7A peaceful riverside settlement"
+
+  kings_rest:
+    name: "King's Rest"
+    world: "Seratari"
+    x: 841
+    z: -488
+    radius: 150
+    subtitle: "&7Seat of an ancient kingdom"
+
+  ancient_sanctum:
+    name: "The Ancient Sanctum"
+    world: "Seratari"
+    x: 389
+    z: -882
+    radius: 140
+    subtitle: "&7A forgotten holy fortress"
+
+  goblin_depths:
+    name: "The Goblin Depths"
+    world: "Seratari"
+    x: 657
+    z: -551
+    radius: 75
+    subtitle: "&cDanger lurks below"

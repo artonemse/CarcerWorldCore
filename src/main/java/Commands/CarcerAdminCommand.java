@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 public class CarcerAdminCommand implements CommandExecutor {
@@ -32,12 +33,31 @@ public class CarcerAdminCommand implements CommandExecutor {
             return true;
         }
 
+        String action = args[0].toLowerCase();
+
+        // ================================
+        // GIVE RANDOM ARMOR
+        // /carcer givearmor
+        // ================================
+
+        if (action.equals("givearmor")) {
+
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(color("&c&lADMIN &7&l| &fOnly players can use this command."));
+                return true;
+            }
+
+            ItemStack armor = plugin.getGenericArmorGenerator().generateRandomArmor();
+            player.getInventory().addItem(armor);
+
+            sender.sendMessage(color("&a&lADMIN &7&l| &fGenerated a random generic armor piece."));
+            return true;
+        }
+
         if (args.length < 3) {
             sendHelp(sender);
             return true;
         }
-
-        String action = args[0].toLowerCase();
 
         Player target = Bukkit.getPlayerExact(args[1]);
 
@@ -296,6 +316,7 @@ public class CarcerAdminCommand implements CommandExecutor {
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(color("&a&lCARCER ADMIN"));
+        sender.sendMessage(color("&7&l| &f/carcer givearmor"));
         sender.sendMessage(color("&7&l| &f/carcer level <player> <1-100>"));
         sender.sendMessage(color("&7&l| &f/carcer exp <player> <amount>"));
         sender.sendMessage(color("&7&l| &f/carcer skillpoints <player> <amount>"));

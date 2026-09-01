@@ -51,13 +51,7 @@ public class WeaponMenuListener implements Listener {
                 CarcerWorldCore.getInstance().getAscensionGUI().open(player);
             }
 
-            case 22 -> {
-                player.closeInventory();
-
-                player.sendMessage(
-                        "§d§lCOSMETICS §8> §fCosmetics are coming soon."
-                );
-            }
+            case 22 -> CarcerWorldCore.getInstance().getCosmeticsGUI().open(player);
         }
     }
 }

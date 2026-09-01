@@ -16,6 +16,7 @@ public class PlayerData {
     private long mobKills;
     private int ascensions;
     private int skillPoints;
+    private long gems;
 
     private long souls;
 
@@ -34,6 +35,7 @@ public class PlayerData {
         ascensions = 0;
         skillPoints = 0;
         souls = 0;
+        gems = 0;
 
         for (SkillType type : SkillType.values()) {
             skills.put(type, 0);
@@ -46,6 +48,25 @@ public class PlayerData {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public long getGems() {
+        return gems;
+    }
+
+    public void setGems(long gems) {
+        this.gems = Math.max(0, gems);
+    }
+
+    public void addGems(long amount) {
+        if (amount > 0) gems += amount;
+    }
+
+    public boolean removeGems(long amount) {
+        if (amount <= 0 || gems < amount) return false;
+
+        gems -= amount;
+        return true;
     }
 
     // ================================
