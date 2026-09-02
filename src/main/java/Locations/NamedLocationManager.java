@@ -1,5 +1,6 @@
 package Locations;
 
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -29,13 +30,7 @@ public class NamedLocationManager {
 
         file = new File(plugin.getDataFolder(), "locations.yml");
 
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
+        if (!file.exists()) plugin.saveResource("locations.yml", false);
 
         config = YamlConfiguration.loadConfiguration(file);
     }
@@ -58,6 +53,7 @@ public class NamedLocationManager {
             String world = config.getString(path + ".world", "Seratari");
             String type = config.getString(path + ".type", "RADIUS");
             String subtitle = config.getString(path + ".subtitle", "&7Unknown Location");
+            boolean safeZone = config.getBoolean(path + ".safe-zone", false);
 
             if (type.equalsIgnoreCase("BOX")) {
                 double minX = config.getDouble(path + ".min-x");
@@ -67,7 +63,7 @@ public class NamedLocationManager {
                 double minZ = config.getDouble(path + ".min-z");
                 double maxZ = config.getDouble(path + ".max-z");
 
-                locations.add(new NamedLocation(id, name, world, minX, maxX, minY, maxY, minZ, maxZ, subtitle));
+                locations.add(new NamedLocation(id, name, world, minX, maxX, minY, maxY, minZ, maxZ, subtitle, safeZone));
                 continue;
             }
 
@@ -75,23 +71,27 @@ public class NamedLocationManager {
             double z = config.getDouble(path + ".z");
             double radius = config.getDouble(path + ".radius", 100);
 
-            locations.add(new NamedLocation(id, name, world, x, z, radius, subtitle));
+            locations.add(new NamedLocation(id, name, world, x, z, radius, subtitle, safeZone));
         }
 
         plugin.getLogger().info("[CarcerWorldCore] Loaded " + locations.size() + " named locations.");
     }
 
     public NamedLocation getLocation(Player player) {
-        for (NamedLocation location : locations) {
-            if (location.contains(
-                    player.getWorld().getName(),
-                    player.getLocation().getX(),
-                    player.getLocation().getY(),
-                    player.getLocation().getZ()
-            )) return location;
+        return getLocation(player.getLocation());
+    }
+
+    public NamedLocation getLocation(Location location) {
+        for (NamedLocation namedLocation : locations) {
+            if (namedLocation.contains(location)) return namedLocation;
         }
 
         return null;
+    }
+
+    public boolean isSafeZone(Location location) {
+        NamedLocation namedLocation = getLocation(location);
+        return namedLocation != null && namedLocation.isSafeZone();
     }
 
     public List<NamedLocation> getLocations() {

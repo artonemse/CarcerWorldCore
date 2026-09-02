@@ -11,6 +11,7 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -44,35 +45,27 @@ public class NightMobSpawner {
 
     private void trySpawnNearPlayer(Player player) {
         World world = player.getWorld();
+        CarcerWorldCore carcer = (CarcerWorldCore) plugin;
 
         if (!world.getName().equalsIgnoreCase("Seratari")) return;
         if (!isNight(world)) return;
+        if (carcer.getNamedLocationManager().isSafeZone(player.getLocation())) return;
 
-        long nearbyMobs = player.getNearbyEntities(
-                MOB_CHECK_RADIUS,
-                MOB_CHECK_RADIUS,
-                MOB_CHECK_RADIUS
-        ).stream().filter(entity -> entity instanceof Monster).count();
+        long nearbyMobs = player.getNearbyEntities(MOB_CHECK_RADIUS, MOB_CHECK_RADIUS, MOB_CHECK_RADIUS).stream().filter(entity -> entity instanceof Monster).count();
 
         if (nearbyMobs >= MAX_MOBS) return;
 
         Location spawnLocation = findSpawnLocation(player);
         if (spawnLocation == null) return;
+        if (carcer.getNamedLocationManager().isSafeZone(spawnLocation)) return;
 
-        MobType mobType =
-                ((org.carcercore.carcerWorldCore.CarcerWorldCore) plugin)
-                        .getMobZoneManager()
-                        .getRandomMob(spawnLocation);
+        MobType mobType = carcer.getMobZoneManager().getRandomMob(spawnLocation);
 
         if (mobType == null) return;
 
-        LivingEntity mob = (LivingEntity) world.spawnEntity(
-                spawnLocation,
-                mobType.getEntityType()
-        );
+        LivingEntity mob = (LivingEntity) world.spawnEntity(spawnLocation, mobType.getEntityType());
 
-        AttributeInstance maxHealth =
-                mob.getAttribute(Attribute.MAX_HEALTH);
+        AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
 
         if (maxHealth != null) {
             maxHealth.setBaseValue(mobType.getHealth());
@@ -81,7 +74,8 @@ public class NightMobSpawner {
 
         mob.setCustomName(mobType.getName());
         mob.setCustomNameVisible(false);
-        ((org.carcercore.carcerWorldCore.CarcerWorldCore) plugin).getMobSoulRewardManager().registerMob(mob, mobType);
+
+        carcer.getMobSoulRewardManager().registerMob(mob, mobType);
     }
 
     private Location findSpawnLocation(Player player) {

@@ -25,6 +25,7 @@ import Enchantments.EnchantManager;
 import Listeners.*;
 import Locations.NamedLocationListener;
 import Locations.NamedLocationManager;
+import Locations.SafeZoneListener;
 import MobScaling.MobHealthBarListener;
 import MobScaling.MobHealthBarManager;
 import MobScaling.MobScalingManager;
@@ -43,6 +44,8 @@ import Weapons.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import MobRewards.MobSoulRewardListener;
 import MobRewards.MobSoulRewardManager;
+import NPCs.NPCInteractionListener;
+import NPCs.NPCManager;
 
 public final class CarcerWorldCore extends JavaPlugin {
 
@@ -93,6 +96,9 @@ public final class CarcerWorldCore extends JavaPlugin {
     private NightMobSpawner nightMobSpawner;
     private MobSoulRewardManager mobSoulRewardManager;
 
+    // NPCs
+    private NPCManager npcManager;
+
     // Cosmetics
     // Cosmetics
     private KillEffectManager killEffectManager;
@@ -105,13 +111,22 @@ public final class CarcerWorldCore extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        // ================================
+        // NPC SYSTEM
+        // ================================
+        npcManager = new NPCManager(this);
 
+        getServer().getPluginManager().registerEvents(new NPCInteractionListener(npcManager), this);
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
         // ================================
         // LOCATION DATA
         // ================================
         namedLocationManager = new NamedLocationManager(this);
+
         getServer().getPluginManager().registerEvents(new NamedLocationListener(namedLocationManager), this);
+        getServer().getPluginManager().registerEvents(new SafeZoneListener(this), this);
+
+
 
         // ================================
         // PLAYER DATA
@@ -258,6 +273,12 @@ public final class CarcerWorldCore extends JavaPlugin {
         }
 
         getLogger().info("[CarcerWorldCore] has been disabled!");
+    }
+
+
+
+    public NPCManager getNPCManager() {
+        return npcManager;
     }
 
     // ================================

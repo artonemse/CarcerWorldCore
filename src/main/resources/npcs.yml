@@ -1,0 +1,10 @@
+npcs:
+
+  blackthorn_elder:
+    citizens-id: 1
+    name: "Mayor Aldric"
+    dialogue:
+      - "&8[&b&lMayor Aldric&8] &fAh... a new face in Blackthorn...."
+      - "&8[&b&lMayor Aldric&8] &fOutside these walls, the world is crumbling..."
+      - "&8[&b&lMayor Aldric&8] &fNeed help? To get started head down the street to the left"
+      - "&8[&b&lMayor Aldric&8] &fAnd remember, keep that sword close at all times..."
