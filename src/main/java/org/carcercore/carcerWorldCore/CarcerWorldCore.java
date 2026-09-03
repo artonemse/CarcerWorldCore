@@ -33,6 +33,8 @@ import MobScaling.NightMobSpawner;
 import MobZones.MobZoneManager;
 import PlayerData.PlayerDataListener;
 import PlayerData.PlayerDataManager;
+import Quests.QuestKillListener;
+import Quests.QuestManager;
 import Skills.SkillListener;
 import Skills.SkillManager;
 import Skills.SkillsGUI;
@@ -98,6 +100,8 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     // NPCs
     private NPCManager npcManager;
+    // Quests
+    private QuestManager questManager;
 
     // Cosmetics
     // Cosmetics
@@ -107,6 +111,11 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     private TrailManager trailManager;
     private TrailGUI trailGUI;
+
+
+
+
+
     @Override
     public void onEnable() {
         instance = this;
@@ -116,7 +125,6 @@ public final class CarcerWorldCore extends JavaPlugin {
         // ================================
         npcManager = new NPCManager(this);
 
-        getServer().getPluginManager().registerEvents(new NPCInteractionListener(npcManager), this);
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
         // ================================
         // LOCATION DATA
@@ -143,6 +151,14 @@ public final class CarcerWorldCore extends JavaPlugin {
         getCommand("souls").setExecutor(new SoulsCommand(this));
         getCommand("gems").setExecutor(new GemsCommand(gemManager));
 
+
+        // ================================
+        // QUEST SYSTEM
+        // ================================
+        questManager = new QuestManager(this);
+
+        getServer().getPluginManager().registerEvents(new NPCInteractionListener(npcManager, questManager), this);
+        getServer().getPluginManager().registerEvents(new QuestKillListener(questManager), this);
         // ================================
         // SKILLS
         // ================================
@@ -271,6 +287,7 @@ public final class CarcerWorldCore extends JavaPlugin {
         if (combatHealthBarManager != null) {
             combatHealthBarManager.shutdown();
         }
+        if (questManager != null) questManager.saveAll();
 
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }
@@ -279,6 +296,10 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     public NPCManager getNPCManager() {
         return npcManager;
+    }
+
+    public QuestManager getQuestManager() {
+        return questManager;
     }
 
     // ================================
