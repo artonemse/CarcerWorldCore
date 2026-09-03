@@ -33,3 +33,6 @@ commands:
     aliases: [quest, objective, objectives, challenge, challenges, task, tasks]
   scraps:
     aliases: [scrap]
+  weaponskin:
+    aliases: [giveskin]
+    permission: carcer.admin

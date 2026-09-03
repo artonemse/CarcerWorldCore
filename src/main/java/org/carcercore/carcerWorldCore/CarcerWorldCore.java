@@ -19,6 +19,9 @@ import Cosmetics.KillEffects.KillEffectManager;
 import Cosmetics.Trails.TrailGUI;
 import Cosmetics.Trails.TrailGUIListener;
 import Cosmetics.Trails.TrailManager;
+import Cosmetics.WeaponSkins.WeaponSkinGUI;
+import Cosmetics.WeaponSkins.WeaponSkinGUIListener;
+import Cosmetics.WeaponSkins.WeaponSkinManager;
 import Currencies.GemManager;
 import Currencies.ScrapManager;
 import Currencies.SoulManager;
@@ -62,6 +65,10 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     private static CarcerWorldCore instance;
     private WarpManager warpManager;
+
+
+    private WeaponSkinManager weaponSkinManager;
+    private WeaponSkinGUI weaponSkinGUI;
 
 
     private QuestGUI questGUI;
@@ -251,27 +258,18 @@ public final class CarcerWorldCore extends JavaPlugin {
         trailGUI = new TrailGUI(this, trailManager);
 
         // Main Cosmetics GUI
-        getServer().getPluginManager().registerEvents(
-                new CosmeticsGUIListener(this),
-                this
-        );
-
+        getServer().getPluginManager().registerEvents(new CosmeticsGUIListener(this), this);
         // Kill Effects
-        getServer().getPluginManager().registerEvents(
-                new KillEffectGUIListener(killEffectManager, killEffectGUI),
-                this
-        );
-
-        getServer().getPluginManager().registerEvents(
-                new KillEffectListener(killEffectManager),
-                this
-        );
-
+        getServer().getPluginManager().registerEvents(new KillEffectGUIListener(killEffectManager, killEffectGUI), this);
+        getServer().getPluginManager().registerEvents(new KillEffectListener(killEffectManager), this);
         // Trails
-        getServer().getPluginManager().registerEvents(
-                new TrailGUIListener(trailManager, trailGUI),
-                this
-        );
+        getServer().getPluginManager().registerEvents(new TrailGUIListener(trailManager, trailGUI), this);
+
+        weaponSkinManager = new WeaponSkinManager(this);
+        weaponSkinGUI = new WeaponSkinGUI(weaponSkinManager);
+
+        getServer().getPluginManager().registerEvents(new WeaponSkinGUIListener(this, weaponSkinManager, weaponSkinGUI), this);
+        getCommand("weaponskin").setExecutor(new WeaponSkinCommand(weaponSkinManager));
 
         // ================================
         // WORLD PROTECTION
@@ -461,6 +459,13 @@ public final class CarcerWorldCore extends JavaPlugin {
     // ================================
     // COSMETICS
     // ================================
+    public WeaponSkinManager getWeaponSkinManager() {
+        return weaponSkinManager;
+    }
+
+    public WeaponSkinGUI getWeaponSkinGUI() {
+        return weaponSkinGUI;
+    }
 
     public KillEffectManager getKillEffectManager() {
         return killEffectManager;

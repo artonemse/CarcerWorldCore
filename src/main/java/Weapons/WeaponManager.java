@@ -1,6 +1,7 @@
 package Weapons;
 
 import Armor.Generic.ArmorStat;
+import Cosmetics.WeaponSkins.WeaponSkin;
 import Enchantments.EnchantType;
 import PlayerData.PlayerData;
 import Skills.SkillType;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 import org.bukkit.ChatColor;
@@ -99,8 +101,7 @@ public class WeaponManager {
         // CREATE WEAPON
         // ================================
 
-        ItemStack item =
-                new ItemStack(getWeaponMaterial(ascension));
+        ItemStack item = new ItemStack(getWeaponMaterial(ascension));
 
         ItemMeta meta = item.getItemMeta();
 
@@ -258,8 +259,16 @@ public class WeaponManager {
                 PersistentDataType.BYTE,
                 (byte) 1
         );
+        WeaponSkin selectedSkin = plugin.getWeaponSkinManager().getSelected(player);
+
+        if (selectedSkin != null) {
+            CustomModelDataComponent component = meta.getCustomModelDataComponent();
+            component.setFloats(List.of((float) selectedSkin.getCustomModelData()));
+            meta.setCustomModelDataComponent(component);
+        }
 
         item.setItemMeta(meta);
+
 
         return item;
     }

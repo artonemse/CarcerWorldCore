@@ -32,10 +32,7 @@ public class CosmeticsGUIListener implements Listener {
                 player.sendMessage("§5§lCOSMETICS §7§l| §fAuras are coming soon.");
             }
 
-            case 16 -> {
-                player.closeInventory();
-                player.sendMessage("§b§lCOSMETICS §7§l| §fWeapon Skins are coming soon.");
-            }
+            case 16 -> plugin.getWeaponSkinGUI().open(player);
 
             case 22 -> plugin.getWeaponMenu().open(player);
         }

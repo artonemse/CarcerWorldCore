@@ -101,7 +101,7 @@ public class CosmeticsGUI {
         lore.add(color("&7&l| &fChange the appearance"));
         lore.add(color("&7&l| &fof your progression weapon."));
         lore.add("");
-        lore.add(color("&c&lComing Soon"));
+        lore.add(color("&b&lClick to Open"));
 
         meta.setLore(lore);
         item.setItemMeta(meta);

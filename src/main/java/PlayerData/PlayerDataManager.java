@@ -156,6 +156,24 @@ public class PlayerDataManager {
         saveFile();
     }
 
+    public boolean ownsWeaponSkin(UUID uuid, String skinId) {
+        return config.getBoolean("players." + uuid + ".cosmetics.weapon-skins.owned." + skinId.toLowerCase(), false);
+    }
+
+    public void setWeaponSkinOwned(UUID uuid, String skinId, boolean owned) {
+        config.set("players." + uuid + ".cosmetics.weapon-skins.owned." + skinId.toLowerCase(), owned);
+        saveFile();
+    }
+
+    public String getSelectedWeaponSkin(UUID uuid) {
+        return config.getString("players." + uuid + ".cosmetics.weapon-skins.selected", "none");
+    }
+
+    public void setSelectedWeaponSkin(UUID uuid, String skinId) {
+        config.set("players." + uuid + ".cosmetics.weapon-skins.selected", skinId.toLowerCase());
+        saveFile();
+    }
+
     public void clearAllData() {
         playerDataMap.clear();
         config.set("players", null);
