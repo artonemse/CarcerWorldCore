@@ -16,6 +16,11 @@ import java.util.List;
 public class WeaponSkinGUI {
 
     public static final String TITLE = color("&8Weapon Skins");
+    public static final int[] SKIN_SLOTS = {
+            10, 11, 12, 13, 14, 15, 16,
+            19, 20, 21, 22, 23, 24, 25,
+            28, 29, 30, 31, 32, 33
+    };
 
     private final WeaponSkinManager manager;
 
@@ -24,22 +29,18 @@ public class WeaponSkinGUI {
     }
 
     public void open(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 36, TITLE);
+        Inventory inventory = Bukkit.createInventory(null, 54, TITLE);
 
         fill(inventory);
 
-        int slot = 10;
+        WeaponSkin[] skins = WeaponSkin.values();
 
-        for (WeaponSkin skin : WeaponSkin.values()) {
-            inventory.setItem(slot, createSkinItem(player, skin));
-
-            slot++;
-
-            if (slot == 17) slot = 19;
+        for (int i = 0; i < skins.length && i < SKIN_SLOTS.length; i++) {
+            inventory.setItem(SKIN_SLOTS[i], createSkinItem(player, skins[i]));
         }
 
-        inventory.setItem(31, createRemoveItem(player));
-        inventory.setItem(35, createBackItem());
+        inventory.setItem(48, createRemoveItem(player));
+        inventory.setItem(50, createBackItem());
 
         player.openInventory(inventory);
     }
@@ -57,7 +58,6 @@ public class WeaponSkinGUI {
         meta.setCustomModelDataComponent(component);
 
         List<String> lore = new ArrayList<>();
-
         lore.add("");
 
         if (manager.isSelected(player, skin)) {

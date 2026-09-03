@@ -26,12 +26,12 @@ public class WeaponSkinGUIListener implements Listener {
 
         event.setCancelled(true);
 
-        if (event.getRawSlot() == 35) {
+        if (event.getRawSlot() == 50) {
             plugin.getCosmeticsGUI().open(player);
             return;
         }
 
-        if (event.getRawSlot() == 31) {
+        if (event.getRawSlot() == 48) {
             if (manager.getSelected(player) == null) return;
 
             manager.setSelected(player, null);
@@ -58,11 +58,10 @@ public class WeaponSkinGUIListener implements Listener {
     }
 
     private WeaponSkin getSkinFromSlot(int slot) {
-        int[] slots = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22};
         WeaponSkin[] skins = WeaponSkin.values();
 
-        for (int i = 0; i < slots.length; i++) {
-            if (slot == slots[i]) return skins[i];
+        for (int i = 0; i < WeaponSkinGUI.SKIN_SLOTS.length && i < skins.length; i++) {
+            if (slot == WeaponSkinGUI.SKIN_SLOTS[i]) return skins[i];
         }
 
         return null;
