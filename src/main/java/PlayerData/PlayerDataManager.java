@@ -68,48 +68,15 @@ public class PlayerDataManager {
 
         PlayerData data = new PlayerData(uuid);
 
-        data.setWeaponLevel(
-                config.getInt(
-                        path + ".weapon-level",
-                        1
-                )
-        );
-
-        data.setWeaponExp(
-                config.getLong(
-                        path + ".weapon-exp",
-                        0
-                )
-        );
-
-        data.setMobKills(
-                config.getLong(
-                        path + ".mob-kills",
-                        0
-                )
-        );
-
-        data.setAscensions(
-                config.getInt(
-                        path + ".ascensions",
-                        0
-                )
-        );
-
-        data.setSkillPoints(
-                config.getInt(
-                        path + ".skill-points",
-                        0
-                )
-        );
-
-        data.setSouls(
-                config.getLong(
-                        path + ".souls",
-                        0
-                )
-        );
+        data.setWeaponLevel(config.getInt(path + ".weapon-level", 1));
+        data.setWeaponExp(config.getLong(path + ".weapon-exp", 0));
+        data.setMobKills(config.getLong(path + ".mob-kills", 0));
+        data.setAscensions(config.getInt(path + ".ascensions", 0));
+        data.setSkillPoints(config.getInt(path + ".skill-points", 0));
+        data.setSouls(config.getLong(path + ".souls", 0));
         data.setGems(config.getLong(path + ".gems", 0));
+        data.setGems(config.getLong(path + ".gems", 0));
+        data.setScraps(config.getLong(path + ".scraps", 0));
 
         for (EnchantType type : EnchantType.values()) {
             data.setEnchantLevel(
@@ -144,36 +111,15 @@ public class PlayerDataManager {
 
         String path = "players." + uuid;
 
-        config.set(
-                path + ".weapon-level",
-                data.getWeaponLevel()
-        );
-
-        config.set(
-                path + ".weapon-exp",
-                data.getWeaponExp()
-        );
-
-        config.set(
-                path + ".mob-kills",
-                data.getMobKills()
-        );
-
-        config.set(
-                path + ".ascensions",
-                data.getAscensions()
-        );
-
-        config.set(
-                path + ".skill-points",
-                data.getSkillPoints()
-        );
-
-        config.set(
-                path + ".souls",
-                data.getSouls()
-        );
+        config.set(path + ".weapon-level", data.getWeaponLevel());
+        config.set(path + ".weapon-exp", data.getWeaponExp());
+        config.set(path + ".mob-kills", data.getMobKills());
+        config.set(path + ".ascensions", data.getAscensions());
+        config.set(path + ".skill-points", data.getSkillPoints());
+        config.set(path + ".souls", data.getSouls());
         config.set(path + ".gems", data.getGems());
+        config.set(path + ".gems", data.getGems());
+        config.set(path + ".scraps", data.getScraps());
 
         for (EnchantType type : EnchantType.values()) {
             config.set(

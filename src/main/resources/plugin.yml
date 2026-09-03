@@ -31,3 +31,5 @@ commands:
       permission: carcer.admin
   quests:
     aliases: [quest, objective, objectives, challenge, challenges, task, tasks]
+  scraps:
+    aliases: [scrap]

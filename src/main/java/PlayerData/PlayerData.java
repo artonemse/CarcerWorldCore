@@ -17,14 +17,11 @@ public class PlayerData {
     private int ascensions;
     private int skillPoints;
     private long gems;
-
     private long souls;
+    private long scraps;
 
-    private final Map<SkillType, Integer> skills =
-            new EnumMap<>(SkillType.class);
-
-    private final Map<EnchantType, Integer> enchants =
-            new EnumMap<>(EnchantType.class);
+    private final Map<SkillType, Integer> skills = new EnumMap<>(SkillType.class);
+    private final Map<EnchantType, Integer> enchants = new EnumMap<>(EnchantType.class);
 
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
@@ -36,19 +33,19 @@ public class PlayerData {
         skillPoints = 0;
         souls = 0;
         gems = 0;
+        scraps = 0;
 
-        for (SkillType type : SkillType.values()) {
-            skills.put(type, 0);
-        }
-
-        for (EnchantType type : EnchantType.values()) {
-            enchants.put(type, 0);
-        }
+        for (SkillType type : SkillType.values()) skills.put(type, 0);
+        for (EnchantType type : EnchantType.values()) enchants.put(type, 0);
     }
 
     public UUID getUuid() {
         return uuid;
     }
+
+    // ================================
+    // GEMS
+    // ================================
 
     public long getGems() {
         return gems;
@@ -66,6 +63,29 @@ public class PlayerData {
         if (amount <= 0 || gems < amount) return false;
 
         gems -= amount;
+        return true;
+    }
+
+    // ================================
+    // SCRAPS
+    // ================================
+
+    public long getScraps() {
+        return scraps;
+    }
+
+    public void setScraps(long scraps) {
+        this.scraps = Math.max(0, scraps);
+    }
+
+    public void addScraps(long amount) {
+        if (amount > 0) scraps += amount;
+    }
+
+    public boolean removeScraps(long amount) {
+        if (amount <= 0 || scraps < amount) return false;
+
+        scraps -= amount;
         return true;
     }
 
@@ -138,9 +158,7 @@ public class PlayerData {
     }
 
     public boolean removeSkillPoints(int amount) {
-        if (amount <= 0 || skillPoints < amount) {
-            return false;
-        }
+        if (amount <= 0 || skillPoints < amount) return false;
 
         skillPoints -= amount;
         return true;
@@ -159,15 +177,11 @@ public class PlayerData {
     }
 
     public void addSouls(long amount) {
-        if (amount > 0) {
-            souls += amount;
-        }
+        if (amount > 0) souls += amount;
     }
 
     public boolean removeSouls(long amount) {
-        if (amount <= 0 || souls < amount) {
-            return false;
-        }
+        if (amount <= 0 || souls < amount) return false;
 
         souls -= amount;
         return true;
@@ -182,17 +196,11 @@ public class PlayerData {
     }
 
     public void setSkillLevel(SkillType type, int level) {
-        skills.put(
-                type,
-                Math.max(0, Math.min(level, type.getMaxLevel()))
-        );
+        skills.put(type, Math.max(0, Math.min(level, type.getMaxLevel())));
     }
 
     public void addSkillLevel(SkillType type, int amount) {
-        setSkillLevel(
-                type,
-                getSkillLevel(type) + amount
-        );
+        setSkillLevel(type, getSkillLevel(type) + amount);
     }
 
     // ================================
@@ -204,16 +212,10 @@ public class PlayerData {
     }
 
     public void setEnchantLevel(EnchantType type, int level) {
-        enchants.put(
-                type,
-                Math.max(0, Math.min(level, type.getMaxLevel()))
-        );
+        enchants.put(type, Math.max(0, Math.min(level, type.getMaxLevel())));
     }
 
     public void addEnchantLevel(EnchantType type, int amount) {
-        setEnchantLevel(
-                type,
-                getEnchantLevel(type) + amount
-        );
+        setEnchantLevel(type, getEnchantLevel(type) + amount);
     }
 }

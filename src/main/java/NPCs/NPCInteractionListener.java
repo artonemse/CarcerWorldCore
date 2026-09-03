@@ -5,6 +5,7 @@ import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 public class NPCInteractionListener implements Listener {
 
@@ -23,6 +24,11 @@ public class NPCInteractionListener implements Listener {
 
         CarcerNPC npc = npcManager.getNPC(citizensId);
         if (npc == null) return;
+
+        if (npc.getId().equalsIgnoreCase("blacksmith")) {
+            CarcerWorldCore.getInstance().getSalvageGUI().open(player);
+            return;
+        }
 
         if (questManager.handleNPCInteraction(player, npc)) return;
 

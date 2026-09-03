@@ -2,6 +2,9 @@ package org.carcercore.carcerWorldCore;
 
 import Armor.*;
 import Armor.Generic.GenericArmorGenerator;
+import Armor.Salvage.SalvageGUI;
+import Armor.Salvage.SalvageGUIListener;
+import Armor.Salvage.SalvageManager;
 import Ascension.AscensionGUI;
 import Ascension.AscensionGUIListener;
 import Ascension.AscensionManager;
@@ -17,6 +20,7 @@ import Cosmetics.Trails.TrailGUI;
 import Cosmetics.Trails.TrailGUIListener;
 import Cosmetics.Trails.TrailManager;
 import Currencies.GemManager;
+import Currencies.ScrapManager;
 import Currencies.SoulManager;
 import Currencies.SoulsCommand;
 import Enchantments.EnchantGUI;
@@ -117,6 +121,10 @@ public final class CarcerWorldCore extends JavaPlugin {
     private TrailManager trailManager;
     private TrailGUI trailGUI;
 
+    private ScrapManager scrapManager;
+    private SalvageManager salvageManager;
+    private SalvageGUI salvageGUI;
+
 
 
 
@@ -152,9 +160,12 @@ public final class CarcerWorldCore extends JavaPlugin {
         // ================================
         soulManager = new SoulManager(this);
         gemManager = new GemManager(this);
+        scrapManager = new ScrapManager(this);
+
 
         getCommand("souls").setExecutor(new SoulsCommand(this));
         getCommand("gems").setExecutor(new GemsCommand(gemManager));
+        getCommand("scraps").setExecutor(new ScrapsCommand(scrapManager));
 
 
         // ================================
@@ -276,6 +287,11 @@ public final class CarcerWorldCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
 
+        salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);
+        salvageGUI = new SalvageGUI(salvageManager, scrapManager);
+
+        getServer().getPluginManager().registerEvents(new SalvageGUIListener(salvageManager, salvageGUI), this);
+
         // ================================
         // ADMIN COMMANDS
         // ================================
@@ -315,6 +331,18 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     public QuestGUI getQuestGUI() {
         return questGUI;
+    }
+
+    public ScrapManager getScrapManager() {
+        return scrapManager;
+    }
+
+    public SalvageManager getSalvageManager() {
+        return salvageManager;
+    }
+
+    public SalvageGUI getSalvageGUI() {
+        return salvageGUI;
     }
 
     // ================================
