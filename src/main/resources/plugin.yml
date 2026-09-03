@@ -29,3 +29,5 @@ commands:
       description: Delete a warp
       usage: /delwarp <name>
       permission: carcer.admin
+  quests:
+    aliases: [quest, objective, objectives, challenge, challenges, task, tasks]

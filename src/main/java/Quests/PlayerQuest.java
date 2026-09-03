@@ -1,15 +1,17 @@
 package Quests;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PlayerQuest {
 
     private final String questId;
     private QuestState state;
-    private int progress;
+    private final Map<String, PlayerQuestObjective> objectives = new HashMap<>();
 
-    public PlayerQuest(String questId, QuestState state, int progress) {
+    public PlayerQuest(String questId, QuestState state) {
         this.questId = questId;
         this.state = state;
-        this.progress = progress;
     }
 
     public String getQuestId() {
@@ -24,15 +26,11 @@ public class PlayerQuest {
         this.state = state;
     }
 
-    public int getProgress() {
-        return progress;
+    public Map<String, PlayerQuestObjective> getObjectives() {
+        return objectives;
     }
 
-    public void setProgress(int progress) {
-        this.progress = progress;
-    }
-
-    public void addProgress(int amount) {
-        progress += amount;
+    public PlayerQuestObjective getObjective(String objectiveId) {
+        return objectives.computeIfAbsent(objectiveId.toLowerCase(), id -> new PlayerQuestObjective());
     }
 }

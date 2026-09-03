@@ -1,0 +1,103 @@
+quests:
+
+  # ============================================================
+  # MAIN QUESTS
+  # Automatically active. No NPC required.
+  # ============================================================
+
+  slayer_1000:
+    type: MAIN
+    name: "Slayer I"
+    prerequisite: ""
+
+    objectives:
+      - id: kills
+        type: KILL_HOSTILE_MOBS
+        description: "Hostile Mobs Killed"
+        amount: 1000
+
+    rewards:
+      souls: 2500
+      gems: 100
+
+  world_explorer:
+    type: MAIN
+    name: "World Explorer"
+    prerequisite: ""
+
+    objectives:
+      - id: locations
+        type: VISIT_UNIQUE_LOCATIONS
+        description: "Locations Discovered"
+        targets:
+          - blackthorn_village
+          - kings_rest
+          - duskport
+          - nattamata
+          - ancient_sanctum
+          - ironhold
+          - blossom_reach
+          - goblin_depths
+
+    rewards:
+      souls: 5000
+      gems: 500
+
+  # Example for later when you have the exact custom MobType IDs:
+  #
+  # bestiary:
+  #   type: MAIN
+  #   name: "Bestiary"
+  #   prerequisite: ""
+  #
+  #   objectives:
+  #     - id: unique_mobs
+  #       type: KILL_UNIQUE_MOBS
+  #       description: "Unique Mobs Defeated"
+  #       targets:
+  #         - zombie
+  #         - skeleton
+  #         - husk
+  #
+  #   rewards:
+  #     souls: 5000
+  #     gems: 25
+
+
+  # ============================================================
+  # NPC QUESTS
+  # Activated by speaking with the configured NPC.
+  # ============================================================
+
+  clearing_the_road:
+    type: NPC
+    name: "Clearing the Road"
+    npc: "warden_garrick"
+    prerequisite: ""
+
+    objectives:
+      - id: kills
+        type: KILL_HOSTILE_MOBS
+        description: "Hostile Mobs Killed"
+        amount: 5
+
+    rewards:
+      souls: 250
+      gems: 0
+
+    dialogue:
+      start:
+        - "&8[&b&lWarden Garrick&8] &fCreatures have been gathering beyond the village."
+        - "&8[&b&lWarden Garrick&8] &fThin their numbers. Kill &c5 hostile mobs &fand report back."
+
+      active:
+        - "&8[&b&lWarden Garrick&8] &fYou've dealt with &c%progress%&f/&c%required% &fof them. Keep moving."
+
+      ready:
+        - "&8[&b&lWarden Garrick&8] &fYou've done enough. Let's hear your report."
+
+      complete:
+        - "&8[&b&lWarden Garrick&8] &fGood work. That's five fewer threats near Blackthorn."
+
+      finished:
+        - "&8[&b&lWarden Garrick&8] &fThe roads are quieter because of your work."

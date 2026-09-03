@@ -37,10 +37,6 @@ public class MobSoulRewardListener implements Listener {
 
         plugin.getSoulManager()
                 .addSouls(killer, reward);
-
-        killer.sendMessage(color(
-                "&b&lSOULS &8» &f+" + format(reward) + " Souls"
-        ));
     }
 
     private String format(long amount) {

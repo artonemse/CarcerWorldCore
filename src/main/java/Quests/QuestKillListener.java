@@ -16,11 +16,11 @@ public class QuestKillListener implements Listener {
 
     @EventHandler
     public void onMobKill(EntityDeathEvent event) {
-        if (!(event.getEntity() instanceof Monster)) return;
+        if (!(event.getEntity() instanceof Monster mob)) return;
 
-        Player killer = event.getEntity().getKiller();
+        Player killer = mob.getKiller();
         if (killer == null) return;
 
-        questManager.addKillProgress(killer);
+        questManager.handleMobKill(killer, mob);
     }
 }

@@ -48,6 +48,11 @@ import MobRewards.MobSoulRewardListener;
 import MobRewards.MobSoulRewardManager;
 import NPCs.NPCInteractionListener;
 import NPCs.NPCManager;
+import Quests.QuestGUI;
+import Quests.QuestGUIListener;
+import Quests.QuestLocationListener;
+import Quests.QuestPlayerListener;
+import Quests.QuestsCommand;
 
 public final class CarcerWorldCore extends JavaPlugin {
 
@@ -55,7 +60,7 @@ public final class CarcerWorldCore extends JavaPlugin {
     private WarpManager warpManager;
 
 
-
+    private QuestGUI questGUI;
 
     //Armor stuff
     private GenericArmorGenerator genericArmorGenerator;
@@ -156,9 +161,15 @@ public final class CarcerWorldCore extends JavaPlugin {
         // QUEST SYSTEM
         // ================================
         questManager = new QuestManager(this);
+        questGUI = new QuestGUI(questManager);
 
         getServer().getPluginManager().registerEvents(new NPCInteractionListener(npcManager, questManager), this);
         getServer().getPluginManager().registerEvents(new QuestKillListener(questManager), this);
+        getServer().getPluginManager().registerEvents(new QuestPlayerListener(this, questManager), this);
+        getServer().getPluginManager().registerEvents(new QuestLocationListener(questManager, namedLocationManager), this);
+        getServer().getPluginManager().registerEvents(new QuestGUIListener(questGUI), this);
+
+        getCommand("quests").setExecutor(new QuestsCommand(questGUI));
         // ================================
         // SKILLS
         // ================================
@@ -300,6 +311,10 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     public QuestManager getQuestManager() {
         return questManager;
+    }
+
+    public QuestGUI getQuestGUI() {
+        return questGUI;
     }
 
     // ================================
