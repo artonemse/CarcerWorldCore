@@ -1,6 +1,7 @@
 package Skills;
 
 import PlayerData.PlayerData;
+import Quests.QuestObjectiveType;
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -52,6 +53,8 @@ public class SkillManager {
 
         data.removeSkillPoints(cost);
         data.addSkillLevel(type, 1);
+
+        if (plugin.getQuestManager() != null) plugin.getQuestManager().handleProgress(player, QuestObjectiveType.SPEND_SKILL_POINTS, cost);
 
         plugin.getPlayerDataManager()
                 .savePlayerData(player.getUniqueId());

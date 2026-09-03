@@ -1,5 +1,6 @@
 package Ascension;
 
+import Quests.QuestObjectiveType;
 import org.bukkit.entity.Player;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 import Enchantments.EnchantType;
@@ -42,6 +43,8 @@ public class AscensionManager {
 
         // Increase Ascension first
         data.addAscension();
+
+        if (plugin.getQuestManager() != null) plugin.getQuestManager().handleStateProgress(player, QuestObjectiveType.REACH_ASCENSION, data.getAscensions());
 
         // Reset weapon progression
         data.setWeaponLevel(1);

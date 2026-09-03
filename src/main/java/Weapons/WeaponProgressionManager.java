@@ -1,6 +1,7 @@
 package Weapons;
 
 import PlayerData.PlayerData;
+import Quests.QuestObjectiveType;
 import org.bukkit.entity.Player;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
@@ -57,6 +58,7 @@ public class WeaponProgressionManager {
 
             data.setWeaponLevel(level);
             data.addSkillPoints(SKILL_POINTS_PER_LEVEL);
+            if (plugin.getQuestManager() != null) plugin.getQuestManager().handleStateProgress(player, QuestObjectiveType.REACH_WEAPON_LEVEL, level);
 
             leveledUp = true;
 

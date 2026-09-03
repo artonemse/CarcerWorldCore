@@ -274,7 +274,7 @@ public final class CarcerWorldCore extends JavaPlugin {
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
-        getServer().getPluginManager().registerEvents(new ArmorDropListener(armorManager, genericArmorGenerator), this);
+        getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
 
         // ================================
         // ADMIN COMMANDS

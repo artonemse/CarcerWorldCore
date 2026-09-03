@@ -1,6 +1,7 @@
 package Enchantments;
 
 import PlayerData.PlayerData;
+import Quests.QuestObjectiveType;
 import org.bukkit.entity.Player;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
@@ -57,6 +58,7 @@ public class EnchantManager {
         }
 
         data.addEnchantLevel(type, 1);
+        if (plugin.getQuestManager() != null) plugin.getQuestManager().handleProgress(player, QuestObjectiveType.ENCHANT_WEAPON, 1);
 
         plugin.getPlayerDataManager()
                 .savePlayerData(player.getUniqueId());

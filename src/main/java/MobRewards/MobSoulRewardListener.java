@@ -35,8 +35,7 @@ public class MobSoulRewardListener implements Listener {
         long reward =
                 rewardManager.calculateReward(killer, mob);
 
-        plugin.getSoulManager()
-                .addSouls(killer, reward);
+        plugin.getSoulManager().addEarnedSouls(killer, reward);
     }
 
     private String format(long amount) {

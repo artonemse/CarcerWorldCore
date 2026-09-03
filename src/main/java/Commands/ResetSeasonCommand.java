@@ -19,13 +19,11 @@ public class ResetSeasonCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
         if (!sender.hasPermission("carcerworld.admin.resetseason")) {
             sender.sendMessage(color("&c&lSEASON RESET &7&l| &fYou do not have permission to use this command."));
             return true;
         }
 
-        // /resetseason
         if (args.length == 0) {
             sender.sendMessage(color("&c&lSEASON RESET"));
             sender.sendMessage(color("&7&l| &fThis will permanently wipe ALL player progression."));
@@ -35,6 +33,8 @@ public class ResetSeasonCommand implements CommandExecutor {
             sender.sendMessage(color("&7&l| &fSouls"));
             sender.sendMessage(color("&7&l| &fWeapon enchants"));
             sender.sendMessage(color("&7&l| &fAscensions"));
+            sender.sendMessage(color("&7&l| &fQuest progress"));
+            sender.sendMessage(color("&7&l| &fCompleted quests"));
             sender.sendMessage(color("&7&l| &fAll other saved player progression"));
             sender.sendMessage("");
             sender.sendMessage(color("&c&lWARNING &7&l| &fThis cannot be undone."));
@@ -48,32 +48,35 @@ public class ResetSeasonCommand implements CommandExecutor {
         }
 
         // ================================
-        // WIPE ALL SAVED PLAYER DATA
+        // WIPE PLAYER DATA
         // ================================
 
         plugin.getPlayerDataManager().clearAllData();
+
+        // ================================
+        // WIPE QUEST DATA
+        // ================================
+
+        plugin.getQuestManager().clearAllQuestData();
 
         // ================================
         // REINITIALIZE ONLINE PLAYERS
         // ================================
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-
-            // Creates brand-new default PlayerData
             PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
 
-            // Reset health in case Health skill previously modified it
             plugin.getSkillManager().updatePlayerHealth(player);
-
-            // Give/update fresh beginner weapon
             plugin.getWeaponManager().giveOrUpdateWeapon(player);
+
+            // Re-add fresh MAIN quests at 0 progress.
+            plugin.getQuestManager().ensureMainQuests(player);
 
             player.sendMessage(color("&c&lSEASON RESET &7&l| &fYour progression has been completely reset."));
         }
 
         Bukkit.broadcastMessage(color("&c&lSEASON RESET &7&l| &fA new season has begun!"));
-
-        sender.sendMessage(color("&a&lSEASON RESET &7&l| &fAll player data has been successfully wiped."));
+        sender.sendMessage(color("&a&lSEASON RESET &7&l| &fAll player data and quest progress have been successfully wiped."));
 
         return true;
     }

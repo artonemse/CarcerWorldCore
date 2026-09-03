@@ -1,6 +1,7 @@
 package Currencies;
 
 import PlayerData.PlayerData;
+import Quests.QuestObjectiveType;
 import org.bukkit.entity.Player;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
@@ -31,6 +32,16 @@ public class SoulManager {
 
         plugin.getPlayerDataManager()
                 .savePlayerData(player.getUniqueId());
+    }
+    public void addEarnedSouls(Player player, long amount) {
+        if (amount <= 0) return;
+
+        addSouls(player, amount);
+
+        if (plugin.getQuestManager() != null) {
+            int questAmount = amount > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) amount;
+            plugin.getQuestManager().handleProgress(player, QuestObjectiveType.EARN_SOULS, questAmount);
+        }
     }
 
     public boolean removeSouls(Player player, long amount) {

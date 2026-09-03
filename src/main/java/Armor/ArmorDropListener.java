@@ -1,12 +1,14 @@
 package Armor;
 
 import Armor.Generic.GenericArmorGenerator;
+import Quests.QuestObjectiveType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,11 +22,10 @@ public class ArmorDropListener implements Listener {
 
     private final ArmorManager armorManager;
     private final GenericArmorGenerator generator;
+    private final CarcerWorldCore plugin;
 
-    public ArmorDropListener(
-            ArmorManager armorManager,
-            GenericArmorGenerator generator
-    ) {
+    public ArmorDropListener(CarcerWorldCore plugin, ArmorManager armorManager, GenericArmorGenerator generator) {
+        this.plugin = plugin;
         this.armorManager = armorManager;
         this.generator = generator;
     }
@@ -41,45 +42,23 @@ public class ArmorDropListener implements Listener {
             return;
         }
 
-        Player killer =
-                entity.getKiller();
+        Player killer = entity.getKiller();
 
         if (killer == null) {
             return;
         }
 
-        double lootMultiplier =
-                armorManager
-                        .getLootMultiplier(
-                                killer
-                        );
+        double lootMultiplier = armorManager.getLootMultiplier(killer);
+        double chance = BASE_DROP_CHANCE * lootMultiplier;
+        chance = Math.min(1.0, chance);
 
-        double chance =
-                BASE_DROP_CHANCE
-                        * lootMultiplier;
-
-        chance =
-                Math.min(
-                        1.0,
-                        chance
-                );
-
-        if (
-                ThreadLocalRandom.current()
-                        .nextDouble()
-                        > chance
-        ) {
+        if (ThreadLocalRandom.current().nextDouble() > chance) {
             return;
         }
 
-        ItemStack armor =
-                generator
-                        .generateRandomArmor();
+        ItemStack armor = generator.generateRandomArmor();
+        entity.getWorld().dropItemNaturally(entity.getLocation(), armor);
 
-        entity.getWorld()
-                .dropItemNaturally(
-                        entity.getLocation(),
-                        armor
-                );
+        if (plugin.getQuestManager() != null) plugin.getQuestManager().handleProgress(killer, QuestObjectiveType.OBTAIN_ARMOR, 1);
     }
 }

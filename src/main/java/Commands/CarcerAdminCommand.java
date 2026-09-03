@@ -22,7 +22,6 @@ public class CarcerAdminCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
         if (!sender.hasPermission("carcerworld.admin")) {
             sender.sendMessage(color("&c&lADMIN &7&l| &fYou do not have permission to use this command."));
             return true;
@@ -36,12 +35,19 @@ public class CarcerAdminCommand implements CommandExecutor {
         String action = args[0].toLowerCase();
 
         // ================================
+        // QUEST ADMIN
+        // ================================
+
+        if (action.equals("quest")) {
+            handleQuestCommand(sender, args);
+            return true;
+        }
+
+        // ================================
         // GIVE RANDOM ARMOR
-        // /carcer givearmor
         // ================================
 
         if (action.equals("givearmor")) {
-
             if (!(sender instanceof Player player)) {
                 sender.sendMessage(color("&c&lADMIN &7&l| &fOnly players can use this command."));
                 return true;
@@ -108,7 +114,6 @@ public class CarcerAdminCommand implements CommandExecutor {
             saveAndUpdate(target);
 
             sender.sendMessage(color("&a&lADMIN &7&l| &fSet &a" + target.getName() + "&f's weapon EXP to &a" + format(amount) + "&f."));
-
             return true;
         }
 
@@ -129,7 +134,6 @@ public class CarcerAdminCommand implements CommandExecutor {
             saveAndUpdate(target);
 
             sender.sendMessage(color("&a&lADMIN &7&l| &fSet &a" + target.getName() + "&f's skill points to &a" + amount + "&f."));
-
             return true;
         }
 
@@ -157,11 +161,9 @@ public class CarcerAdminCommand implements CommandExecutor {
 
         // ================================
         // SKILL
-        // /carcer skill <player> <skill> <level>
         // ================================
 
         if (action.equals("skill")) {
-
             if (args.length < 4) {
                 sender.sendMessage(color("&c&lADMIN &7&l| &fUsage: /carcer skill <player> <skill> <level>"));
                 return true;
@@ -188,17 +190,14 @@ public class CarcerAdminCommand implements CommandExecutor {
             plugin.getWeaponManager().giveOrUpdateWeapon(target);
 
             sender.sendMessage(color("&a&lADMIN &7&l| &fSet &a" + target.getName() + "&f's " + type.getDisplayName() + " &fto level &a" + level + "&f."));
-
             return true;
         }
 
         // ================================
         // ENCHANT
-        // /carcer enchant <player> <enchant> <level>
         // ================================
 
         if (action.equals("enchant")) {
-
             if (args.length < 4) {
                 sender.sendMessage(color("&c&lADMIN &7&l| &fUsage: /carcer enchant <player> <enchant> <level>"));
                 return true;
@@ -224,17 +223,14 @@ public class CarcerAdminCommand implements CommandExecutor {
             saveAndUpdate(target);
 
             sender.sendMessage(color("&a&lADMIN &7&l| &fSet &a" + target.getName() + "&f's " + type.getDisplayName() + " &fto level &a" + level + "&f."));
-
             return true;
         }
 
         // ================================
-        // RESET
-        // /carcer reset <player> confirm
+        // RESET PLAYER
         // ================================
 
         if (action.equals("reset")) {
-
             if (!args[2].equalsIgnoreCase("confirm")) {
                 sender.sendMessage(color("&c&lADMIN &7&l| &fThis completely resets the player's progression."));
                 sender.sendMessage(color("&c&lADMIN &7&l| &fUse &c/carcer reset " + target.getName() + " confirm &fto continue."));
@@ -242,6 +238,7 @@ public class CarcerAdminCommand implements CommandExecutor {
             }
 
             resetPlayer(data);
+            plugin.getQuestManager().resetAllQuests(target);
 
             plugin.getPlayerDataManager().savePlayerData(target.getUniqueId());
             plugin.getSkillManager().updatePlayerHealth(target);
@@ -255,6 +252,107 @@ public class CarcerAdminCommand implements CommandExecutor {
 
         sendHelp(sender);
         return true;
+    }
+
+    // ================================
+    // QUEST ADMIN
+    // ================================
+
+    private void handleQuestCommand(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sendQuestHelp(sender);
+            return;
+        }
+
+        String subAction = args[1].toLowerCase();
+
+        if (subAction.equals("reload")) {
+            plugin.getQuestManager().reloadQuests();
+            sender.sendMessage(color("&a&lQUEST ADMIN &7&l| &fQuest definitions have been reloaded."));
+            return;
+        }
+
+        if (subAction.equals("resetall")) {
+            if (args.length < 3) {
+                sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fUsage: /carcer quest resetall <player>"));
+                return;
+            }
+
+            Player target = Bukkit.getPlayerExact(args[2]);
+
+            if (target == null) {
+                sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fThat player is not online."));
+                return;
+            }
+
+            plugin.getQuestManager().resetAllQuests(target);
+
+            sender.sendMessage(color("&a&lQUEST ADMIN &7&l| &fReset all quests for &a" + target.getName() + "&f."));
+            target.sendMessage(color("&6&lQUESTS &7&l| &fYour quest progress has been reset."));
+            return;
+        }
+
+        if (args.length < 4) {
+            sendQuestHelp(sender);
+            return;
+        }
+
+        Player target = Bukkit.getPlayerExact(args[2]);
+
+        if (target == null) {
+            sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fThat player is not online."));
+            return;
+        }
+
+        String questId = args[3].toLowerCase();
+
+        if (!plugin.getQuestManager().questExists(questId)) {
+            sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fUnknown quest: &c" + questId));
+            return;
+        }
+
+        if (subAction.equals("start")) {
+            boolean success = plugin.getQuestManager().startQuestAdmin(target, questId);
+
+            if (!success) {
+                sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fThat quest is already active or completed for this player."));
+                return;
+            }
+
+            sender.sendMessage(color("&a&lQUEST ADMIN &7&l| &fStarted &a" + questId + " &ffor &a" + target.getName() + "&f."));
+            return;
+        }
+
+        if (subAction.equals("complete")) {
+            boolean success = plugin.getQuestManager().completeQuestAdmin(target, questId);
+
+            if (!success) {
+                sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fThat quest is already completed or could not be completed."));
+                return;
+            }
+
+            sender.sendMessage(color("&a&lQUEST ADMIN &7&l| &fCompleted &a" + questId + " &ffor &a" + target.getName() + "&f."));
+            return;
+        }
+
+        if (subAction.equals("reset")) {
+            plugin.getQuestManager().resetQuest(target, questId);
+
+            sender.sendMessage(color("&a&lQUEST ADMIN &7&l| &fReset &a" + questId + " &ffor &a" + target.getName() + "&f."));
+            target.sendMessage(color("&6&lQUESTS &7&l| &fQuest progress reset: &e" + questId));
+            return;
+        }
+
+        sendQuestHelp(sender);
+    }
+
+    private void sendQuestHelp(CommandSender sender) {
+        sender.sendMessage(color("&6&lQUEST ADMIN"));
+        sender.sendMessage(color("&7&l| &f/carcer quest start <player> <quest>"));
+        sender.sendMessage(color("&7&l| &f/carcer quest complete <player> <quest>"));
+        sender.sendMessage(color("&7&l| &f/carcer quest reset <player> <quest>"));
+        sender.sendMessage(color("&7&l| &f/carcer quest resetall <player>"));
+        sender.sendMessage(color("&7&l| &f/carcer quest reload"));
     }
 
     // ================================
@@ -282,10 +380,6 @@ public class CarcerAdminCommand implements CommandExecutor {
         plugin.getWeaponManager().giveOrUpdateWeapon(player);
     }
 
-    // ================================
-    // SKILL LOOKUP
-    // ================================
-
     private SkillType getSkillType(String input) {
         return switch (input.toLowerCase()) {
             case "strength" -> SkillType.STRENGTH;
@@ -294,10 +388,6 @@ public class CarcerAdminCommand implements CommandExecutor {
             default -> null;
         };
     }
-
-    // ================================
-    // ENCHANT LOOKUP
-    // ================================
 
     private EnchantType getEnchantType(String input) {
         return switch (input.toLowerCase()) {
@@ -310,10 +400,6 @@ public class CarcerAdminCommand implements CommandExecutor {
         };
     }
 
-    // ================================
-    // HELP
-    // ================================
-
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(color("&a&lCARCER ADMIN"));
         sender.sendMessage(color("&7&l| &f/carcer givearmor"));
@@ -323,6 +409,7 @@ public class CarcerAdminCommand implements CommandExecutor {
         sender.sendMessage(color("&7&l| &f/carcer ascension <player> <amount>"));
         sender.sendMessage(color("&7&l| &f/carcer skill <player> <skill> <level>"));
         sender.sendMessage(color("&7&l| &f/carcer enchant <player> <enchant> <level>"));
+        sender.sendMessage(color("&7&l| &f/carcer quest"));
         sender.sendMessage(color("&7&l| &f/carcer reset <player> confirm"));
     }
 
