@@ -5,6 +5,7 @@ import Armor.Generic.GenericArmorGenerator;
 import Armor.Salvage.SalvageGUI;
 import Armor.Salvage.SalvageGUIListener;
 import Armor.Salvage.SalvageManager;
+import Armor.Special.*;
 import Ascension.AscensionGUI;
 import Ascension.AscensionGUIListener;
 import Ascension.AscensionManager;
@@ -131,6 +132,10 @@ public final class CarcerWorldCore extends JavaPlugin {
     private ScrapManager scrapManager;
     private SalvageManager salvageManager;
     private SalvageGUI salvageGUI;
+
+    private SpecialArmorGenerator specialArmorGenerator;
+    private SpecialArmorManager specialArmorManager;
+    private BlackthornAbility blackthornAbility;
 
 
 
@@ -278,12 +283,19 @@ public final class CarcerWorldCore extends JavaPlugin {
 
         //ARMOR STUFF
         genericArmorGenerator = new GenericArmorGenerator(this);
-        armorManager = new ArmorManager(this, genericArmorGenerator);
+        specialArmorGenerator = new SpecialArmorGenerator(this);
+        specialArmorManager = new SpecialArmorManager(specialArmorGenerator);
+
+        armorManager = new ArmorManager(this, genericArmorGenerator, specialArmorManager);
+
+        blackthornAbility = new BlackthornAbility(this);
 
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
 
         salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);
         salvageGUI = new SalvageGUI(salvageManager, scrapManager);
@@ -341,6 +353,14 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     public SalvageGUI getSalvageGUI() {
         return salvageGUI;
+    }
+
+    public SpecialArmorGenerator getSpecialArmorGenerator() {
+        return specialArmorGenerator;
+    }
+
+    public SpecialArmorManager getSpecialArmorManager() {
+        return specialArmorManager;
     }
 
     // ================================

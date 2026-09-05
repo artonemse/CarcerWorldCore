@@ -3,6 +3,7 @@ package Armor;
 import Armor.Generic.ArmorStat;
 import Armor.Generic.GenericArmorData;
 import Armor.Generic.GenericArmorGenerator;
+import Armor.Special.SpecialArmorManager;
 import PlayerData.PlayerData;
 import Skills.SkillType;
 import org.bukkit.attribute.Attribute;
@@ -15,13 +16,12 @@ public class ArmorManager {
 
     private final CarcerWorldCore plugin;
     private final GenericArmorGenerator generator;
+    private final SpecialArmorManager specialArmorManager;
 
-    public ArmorManager(
-            CarcerWorldCore plugin,
-            GenericArmorGenerator generator
-    ) {
+    public ArmorManager(CarcerWorldCore plugin, GenericArmorGenerator generator, SpecialArmorManager specialArmorManager) {
         this.plugin = plugin;
         this.generator = generator;
+        this.specialArmorManager = specialArmorManager;
     }
 
     /*
@@ -78,8 +78,10 @@ public class ArmorManager {
             }
         }
 
-        return totalBuff
-                - strongestDebuff;
+        double genericModifier = totalBuff - strongestDebuff;
+        double specialModifier = specialArmorManager == null ? 0.0 : specialArmorManager.getModifierPercent(player, stat);
+
+        return genericModifier + specialModifier;
     }
 
     /*

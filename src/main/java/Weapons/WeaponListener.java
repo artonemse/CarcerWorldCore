@@ -1,5 +1,6 @@
 package Weapons;
 
+import Armor.Generic.ArmorStat;
 import PlayerData.PlayerData;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -22,8 +23,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
-import Armor.Generic.ArmorStat;
-
 
 public class WeaponListener implements Listener {
 
@@ -31,17 +30,14 @@ public class WeaponListener implements Listener {
     private final WeaponManager weaponManager;
     private final WeaponMenu weaponMenu;
     private final NamespacedKey cleaveKey;
+    private final NamespacedKey armorAbilityDamageKey;
 
     public WeaponListener(CarcerWorldCore plugin, WeaponManager weaponManager, WeaponMenu weaponMenu) {
         this.plugin = plugin;
         this.weaponManager = weaponManager;
         this.weaponMenu = weaponMenu;
-
-        this.cleaveKey =
-                new NamespacedKey(
-                        plugin,
-                        "cleave_damage"
-                );
+        this.cleaveKey = new NamespacedKey(plugin, "cleave_damage");
+        this.armorAbilityDamageKey = new NamespacedKey(plugin, "armor_ability_damage");
     }
 
     @EventHandler
@@ -51,67 +47,60 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity mob)) return;
 
-        if (!(event.getEntity() instanceof LivingEntity mob)) {
+        // ================================
+        // ARMOR ABILITY DAMAGE
+        // ================================
+
+        // Thornstorm and future armor abilities use player-attributed
+        // damage so kills/rewards can still recognize the player.
+        //
+        // Prevent that damage from entering the normal weapon enchant
+        // pipeline and triggering Critical Strike, Double Strike,
+        // Execute or Cleave.
+        if (mob.getPersistentDataContainer().has(armorAbilityDamageKey, PersistentDataType.BYTE)) {
+            mob.getPersistentDataContainer().remove(armorAbilityDamageKey);
             return;
         }
 
-        // Prevent cleave damage from recursively
-        // triggering the enchant pipeline.
-        if (mob.getPersistentDataContainer().has(
-                cleaveKey,
-                PersistentDataType.BYTE
-        )) {
-            mob.getPersistentDataContainer()
-                    .remove(cleaveKey);
+        // ================================
+        // CLEAVE DAMAGE
+        // ================================
 
+        // Prevent cleave damage from recursively triggering
+        // the enchant pipeline.
+        if (mob.getPersistentDataContainer().has(cleaveKey, PersistentDataType.BYTE)) {
+            mob.getPersistentDataContainer().remove(cleaveKey);
             return;
         }
 
-        if (!(event.getDamager() instanceof Player player)) {
-            return;
-        }
+        if (!(event.getDamager() instanceof Player player)) return;
+        if (mob instanceof Player) return;
 
-        if (mob instanceof Player) {
-            return;
-        }
+        ItemStack item = player.getInventory().getItemInMainHand();
 
-        ItemStack item =
-                player.getInventory()
-                        .getItemInMainHand();
+        if (!weaponManager.isCarcerWeapon(item)) return;
 
-        if (!weaponManager.isCarcerWeapon(item)) {
-            return;
-        }
-
-        int weaponLevel =
-                plugin.getPlayerDataManager()
-                        .getPlayerData(player)
-                        .getWeaponLevel();
+        int weaponLevel = plugin.getPlayerDataManager().getPlayerData(player).getWeaponLevel();
 
         // ================================
         // BASE DAMAGE
         // ================================
 
-        double damage =
-                weaponManager.getDamage(player);
+        double damage = weaponManager.getDamage(player);
 
         // ================================
         // SHARPNESS
         // ================================
 
-        damage += plugin.getEnchantManager()
-                .getSharpnessBonus(player);
+        damage += plugin.getEnchantManager().getSharpnessBonus(player);
 
         // ================================
         // STRENGTH
         // ================================
 
-        damage = plugin.getSkillManager()
-                .applyStrength(
-                        player,
-                        damage
-                );
+        damage = plugin.getSkillManager().applyStrength(player, damage);
 
         // ================================
         // ARMOR DAMAGE
@@ -125,9 +114,7 @@ public class WeaponListener implements Listener {
         // CRITICAL STRIKE
         // ================================
 
-        if (plugin.getEnchantManager()
-                .rollCriticalStrike(player)) {
-
+        if (plugin.getEnchantManager().rollCriticalStrike(player)) {
             damage *= 3.0;
         }
 
@@ -135,9 +122,7 @@ public class WeaponListener implements Listener {
         // DOUBLE STRIKE
         // ================================
 
-        if (plugin.getEnchantManager()
-                .rollDoubleStrike(player)) {
-
+        if (plugin.getEnchantManager().rollDoubleStrike(player)) {
             damage *= 2.0;
         }
 
@@ -145,103 +130,57 @@ public class WeaponListener implements Listener {
         // EXECUTE
         // ================================
 
-        AttributeInstance maxHealthAttribute =
-                mob.getAttribute(
-                        Attribute.MAX_HEALTH
-                );
+        AttributeInstance maxHealthAttribute = mob.getAttribute(Attribute.MAX_HEALTH);
 
         if (maxHealthAttribute != null) {
+            double maxHealth = maxHealthAttribute.getValue();
+            double healthAfterHit = Math.max(0, mob.getHealth() - damage);
+            double healthPercentAfterHit = healthAfterHit / maxHealth;
 
-            double maxHealth =
-                    maxHealthAttribute.getValue();
-
-            double healthAfterHit =
-                    Math.max(
-                            0,
-                            mob.getHealth() - damage
-                    );
-
-            double healthPercentAfterHit =
-                    healthAfterHit / maxHealth;
-
-            if (healthPercentAfterHit <= 0.30
-                    && healthAfterHit > 0
-                    && plugin.getEnchantManager()
-                    .rollExecute(player)) {
-
+            if (healthPercentAfterHit <= 0.30 && healthAfterHit > 0 && plugin.getEnchantManager().rollExecute(player)) {
                 damage = mob.getHealth() + 1000;
             }
         }
 
-        // Apply primary hit
+        // ================================
+        // APPLY PRIMARY HIT
+        // ================================
+
         event.setDamage(damage);
 
         // ================================
         // CLEAVE
         // ================================
 
-        if (plugin.getEnchantManager()
-                .rollCleave(player)) {
+        if (plugin.getEnchantManager().rollCleave(player)) {
+            double cleaveDamage = damage * 0.50;
 
-            double cleaveDamage =
-                    damage * 0.50;
+            for (Entity nearby : mob.getNearbyEntities(3, 3, 3)) {
+                if (!(nearby instanceof LivingEntity nearbyMob)) continue;
+                if (nearbyMob instanceof Player) continue;
+                if (nearbyMob.equals(mob)) continue;
 
-            for (Entity nearby :
-                    mob.getNearbyEntities(
-                            3,
-                            3,
-                            3
-                    )) {
-
-                if (!(nearby
-                        instanceof LivingEntity nearbyMob)) {
-                    continue;
-                }
-
-                if (nearbyMob instanceof Player) {
-                    continue;
-                }
-
-                if (nearbyMob.equals(mob)) {
-                    continue;
-                }
-
-                nearbyMob.getPersistentDataContainer()
-                        .set(
-                                cleaveKey,
-                                PersistentDataType.BYTE,
-                                (byte) 1
-                        );
-
-                nearbyMob.damage(
-                        cleaveDamage,
-                        player
-                );
+                nearbyMob.getPersistentDataContainer().set(cleaveKey, PersistentDataType.BYTE, (byte) 1);
+                nearbyMob.damage(cleaveDamage, player);
             }
         }
     }
 
     @EventHandler
     public void onWeaponRightClick(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
-            return;
-        }
+        if (event.getHand() != EquipmentSlot.HAND) return;
 
         Action action = event.getAction();
 
-        if (action != Action.RIGHT_CLICK_AIR
-                && action != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
 
         Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
 
-        ItemStack item = player.getInventory()
-                .getItemInMainHand();
+        if (!weaponManager.isCarcerWeapon(item)) return;
 
-        if (!weaponManager.isCarcerWeapon(item)) {
-            return;
-        }
+        // Sneak + Right Click is reserved for armor abilities.
+        if (player.isSneaking()) return;
 
         event.setCancelled(true);
 
@@ -250,9 +189,7 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        if (weaponManager.isCarcerWeapon(
-                event.getItemDrop().getItemStack()
-        )) {
+        if (weaponManager.isCarcerWeapon(event.getItemDrop().getItemStack())) {
             event.setCancelled(true);
         }
     }
@@ -262,9 +199,7 @@ public class WeaponListener implements Listener {
         ItemStack current = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
 
-        if (weaponManager.isCarcerWeapon(current)
-                || weaponManager.isCarcerWeapon(cursor)) {
-
+        if (weaponManager.isCarcerWeapon(current) || weaponManager.isCarcerWeapon(cursor)) {
             event.setCancelled(true);
         }
     }

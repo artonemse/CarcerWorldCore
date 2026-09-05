@@ -12,6 +12,8 @@ public class WeaponSkinManager {
     }
 
     public boolean owns(Player player, WeaponSkin skin) {
+        if (player.isOp()) return true;
+
         return plugin.getPlayerDataManager().ownsWeaponSkin(player.getUniqueId(), skin.getId());
     }
 

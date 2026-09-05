@@ -59,6 +59,19 @@ public class CarcerAdminCommand implements CommandExecutor {
             sender.sendMessage(color("&a&lADMIN &7&l| &fGenerated a random generic armor piece."));
             return true;
         }
+        if (action.equals("giveblackthorn")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(color("&c&lADMIN &7&l| &fOnly players can use this command."));
+                return true;
+            }
+
+            for (Armor.Special.SpecialArmorSlot slot : Armor.Special.SpecialArmorSlot.values()) {
+                player.getInventory().addItem(plugin.getSpecialArmorGenerator().createArmor(Armor.Special.SpecialArmorSet.BLACKTHORN, slot));
+            }
+
+            sender.sendMessage(color("&2&lBLACKTHORN &7&l| &fYou received the complete Blackthorn armor set."));
+            return true;
+        }
 
         if (args.length < 3) {
             sendHelp(sender);
@@ -272,6 +285,7 @@ public class CarcerAdminCommand implements CommandExecutor {
             return;
         }
 
+
         if (subAction.equals("resetall")) {
             if (args.length < 3) {
                 sender.sendMessage(color("&c&lQUEST ADMIN &7&l| &fUsage: /carcer quest resetall <player>"));
@@ -400,6 +414,8 @@ public class CarcerAdminCommand implements CommandExecutor {
         };
     }
 
+
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(color("&a&lCARCER ADMIN"));
         sender.sendMessage(color("&7&l| &f/carcer givearmor"));
@@ -410,6 +426,7 @@ public class CarcerAdminCommand implements CommandExecutor {
         sender.sendMessage(color("&7&l| &f/carcer skill <player> <skill> <level>"));
         sender.sendMessage(color("&7&l| &f/carcer enchant <player> <enchant> <level>"));
         sender.sendMessage(color("&7&l| &f/carcer quest"));
+        sender.sendMessage(color("&7&l| &f/carcer giveblackthorn"));
         sender.sendMessage(color("&7&l| &f/carcer reset <player> confirm"));
     }
 
