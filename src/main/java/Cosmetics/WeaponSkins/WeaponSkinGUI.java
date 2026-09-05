@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
+import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class WeaponSkinGUI {
         }
 
         inventory.setItem(48, createRemoveItem(player));
+        inventory.setItem(49, createBalanceItem(player));
         inventory.setItem(50, createBackItem());
 
         player.openInventory(inventory);
@@ -70,8 +72,9 @@ public class WeaponSkinGUI {
             lore.add(color("&e&lClick to Equip"));
         } else {
             lore.add(color("&7&l| &fStatus: &cLocked"));
+            lore.add(color("&7&l| &fCost: &e" + String.format("%,d", skin.getScrapCost()) + " Scraps"));
             lore.add("");
-            lore.add(color("&c&lNot Unlocked"));
+            lore.add(color("&e&lClick to Purchase"));
         }
 
         meta.setLore(lore);
@@ -99,6 +102,28 @@ public class WeaponSkinGUI {
             lore.add("");
             lore.add(color("&e&lClick to Remove"));
         }
+
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
+    private ItemStack createBalanceItem(Player player) {
+        ItemStack item = new ItemStack(Material.IRON_NUGGET);
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta == null) return item;
+
+        long scraps = CarcerWorldCore.getInstance().getScrapManager().getScraps(player);
+
+        meta.setDisplayName(color("&f&lYour Scraps"));
+
+        List<String> lore = new ArrayList<>();
+        lore.add(color("&7&l| &fBalance: &e" + String.format("%,d", scraps) + " Scraps"));
+        lore.add("");
+        lore.add(color("&7Salvage unwanted armor"));
+        lore.add(color("&7at the Blacksmith for Scraps."));
 
         meta.setLore(lore);
         item.setItemMeta(meta);

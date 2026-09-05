@@ -44,8 +44,20 @@ public class WeaponSkinGUIListener implements Listener {
         if (skin == null) return;
 
         if (!manager.owns(player, skin)) {
-            player.sendMessage("§b§lWEAPON SKINS §7§l| §fYou have not unlocked this skin.");
-            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.7f, 1.0f);
+            long balance = plugin.getScrapManager().getScraps(player);
+
+            if (balance < skin.getScrapCost()) {
+                player.sendMessage("§b§lWEAPON SKINS §7§l| §fYou need §e" + String.format("%,d", skin.getScrapCost()) + " Scraps §fto purchase this skin.");
+                player.sendMessage("§b§lWEAPON SKINS §7§l| §fYou currently have §e" + String.format("%,d", balance) + " Scraps§f.");
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.7f, 1.0f);
+                return;
+            }
+
+            if (!manager.purchase(player, skin)) return;
+
+            player.sendMessage("§b§lWEAPON SKINS §7§l| §fYou unlocked " + color(skin.getDisplayName()) + "§f for §e" + String.format("%,d", skin.getScrapCost()) + " Scraps§f.");
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.2f);
+            gui.open(player);
             return;
         }
 

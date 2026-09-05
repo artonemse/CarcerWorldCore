@@ -25,6 +25,14 @@ public class WeaponSkinManager {
         if (getSelected(player) == skin) setSelected(player, null);
     }
 
+    public boolean purchase(Player player, WeaponSkin skin) {
+        if (owns(player, skin)) return false;
+        if (!plugin.getScrapManager().removeScraps(player, skin.getScrapCost())) return false;
+
+        unlock(player, skin);
+        return true;
+    }
+
     public WeaponSkin getSelected(Player player) {
         String id = plugin.getPlayerDataManager().getSelectedWeaponSkin(player.getUniqueId());
 
