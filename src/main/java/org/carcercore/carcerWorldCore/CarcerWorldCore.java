@@ -137,6 +137,8 @@ public final class CarcerWorldCore extends JavaPlugin {
     private SpecialArmorManager specialArmorManager;
     private BlackthornAbility blackthornAbility;
     private GravebornAbility gravebornAbility;
+    private BlacktideAbility blacktideAbility;
+    private RoyalGuardAbility royalGuardAbility;
 
 
 
@@ -291,12 +293,15 @@ public final class CarcerWorldCore extends JavaPlugin {
 
         blackthornAbility = new BlackthornAbility(this);
         gravebornAbility = new GravebornAbility(this);
+        blacktideAbility = new BlacktideAbility(this);
+        royalGuardAbility = new RoyalGuardAbility(this);
 
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
-        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility), this);
+        getServer().getPluginManager().registerEvents(new RoyalGuardRetaliationListener(this, royalGuardAbility), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
 
         salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);
@@ -329,6 +334,7 @@ public final class CarcerWorldCore extends JavaPlugin {
             combatHealthBarManager.shutdown();
         }
         if (questManager != null) questManager.saveAll();
+        if (royalGuardAbility != null) royalGuardAbility.shutdown();
 
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }

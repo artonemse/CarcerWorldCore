@@ -457,7 +457,7 @@ public class CarcerAdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(color("&7&l| &f/carcer skill <player> <skill> <level>"));
         sender.sendMessage(color("&7&l| &f/carcer enchant <player> <enchant> <level>"));
         sender.sendMessage(color("&7&l| &f/carcer quest"));
-        sender.sendMessage(color("&7&l| &f/carcer giveblackthorn"));
+        sender.sendMessage(color("&7&l| &f/carcer give <armor set>"));
         sender.sendMessage(color("&7&l| &f/carcer reset <player> confirm"));
     }
 

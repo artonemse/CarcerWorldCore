@@ -1,5 +1,6 @@
 package Armor.Special;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,17 +21,19 @@ public class SpecialArmorAbilityListener implements Listener {
     private final SpecialArmorManager specialArmorManager;
     private final BlackthornAbility blackthornAbility;
     private final GravebornAbility gravebornAbility;
+    private final BlacktideAbility blacktideAbility;
+    private final RoyalGuardAbility royalGuardAbility;
     private final Map<SpecialArmorSet, Map<UUID, Long>> cooldowns = new EnumMap<>(SpecialArmorSet.class);
 
-    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility) {
+    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility, BlacktideAbility blacktideAbility, RoyalGuardAbility royalGuardAbility) {
         this.plugin = plugin;
         this.specialArmorManager = specialArmorManager;
         this.blackthornAbility = blackthornAbility;
         this.gravebornAbility = gravebornAbility;
+        this.blacktideAbility = blacktideAbility;
+        this.royalGuardAbility = royalGuardAbility;
 
-        for (SpecialArmorSet set : SpecialArmorSet.values()) {
-            cooldowns.put(set, new java.util.HashMap<>());
-        }
+        for (SpecialArmorSet set : SpecialArmorSet.values()) cooldowns.put(set, new HashMap<>());
     }
 
     @EventHandler
@@ -37,6 +41,7 @@ public class SpecialArmorAbilityListener implements Listener {
         if (event.getHand() != EquipmentSlot.HAND) return;
 
         Action action = event.getAction();
+
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
 
         Player player = event.getPlayer();
@@ -45,6 +50,7 @@ public class SpecialArmorAbilityListener implements Listener {
         if (!plugin.getWeaponManager().isCarcerWeapon(player.getInventory().getItemInMainHand())) return;
 
         SpecialArmorSet set = specialArmorManager.getFullSet(player);
+
         if (set == null) return;
 
         event.setCancelled(true);
@@ -68,11 +74,14 @@ public class SpecialArmorAbilityListener implements Listener {
         switch (set) {
             case BLACKTHORN -> blackthornAbility.cast(player);
             case GRAVEBORN -> gravebornAbility.cast(player);
+            case BLACKTIDE -> blacktideAbility.cast(player);
+            case ROYAL_GUARD -> royalGuardAbility.cast(player);
         }
     }
 
     private long getRemainingCooldown(Player player, SpecialArmorSet set) {
         Long lastUsed = cooldowns.get(set).get(player.getUniqueId());
+
         if (lastUsed == null) return 0;
 
         long elapsed = System.currentTimeMillis() - lastUsed;
@@ -88,6 +97,6 @@ public class SpecialArmorAbilityListener implements Listener {
     }
 
     private String color(String text) {
-        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 }

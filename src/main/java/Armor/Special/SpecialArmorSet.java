@@ -16,18 +16,9 @@ public enum SpecialArmorSet {
             50.0,
             8.0,
             30,
-            stats(
-                    ArmorStat.HEALTH, 15.0,
-                    ArmorStat.DAMAGE, 10.0,
-                    ArmorStat.DAMAGE_REDUCTION, 8.0
-            ),
-            stats(
-                    ArmorStat.DAMAGE, 20.0
-            ),
-            stats(
-                    ArmorStat.DAMAGE, 40.0,
-                    ArmorStat.DAMAGE_REDUCTION, 20.0
-            )
+            stats(ArmorStat.HEALTH, 15.0, ArmorStat.DAMAGE, 10.0, ArmorStat.DAMAGE_REDUCTION, 8.0),
+            stats(ArmorStat.DAMAGE, 20.0),
+            stats(ArmorStat.DAMAGE, 40.0, ArmorStat.DAMAGE_REDUCTION, 20.0)
     ),
 
     GRAVEBORN(
@@ -36,20 +27,40 @@ public enum SpecialArmorSet {
             "&5&lGRAVEBORN ARMOR",
             "&d",
             "Soul Reap",
-            35.0,
-            7.0,
-            25,
-            stats(
-                    ArmorStat.HEALTH, 10.0,
-                    ArmorStat.DAMAGE_REDUCTION, 10.0
-            ),
-            stats(
-                    ArmorStat.DAMAGE_REDUCTION, 20.0
-            ),
-            stats(
-                    ArmorStat.DAMAGE_REDUCTION, 35.0,
-                    ArmorStat.DAMAGE, 25.0
-            )
+            50.0,
+            8.0,
+            30,
+            stats(ArmorStat.HEALTH, 10.0, ArmorStat.DAMAGE_REDUCTION, 10.0),
+            stats(ArmorStat.DAMAGE_REDUCTION, 20.0),
+            stats(ArmorStat.DAMAGE_REDUCTION, 35.0, ArmorStat.DAMAGE, 25.0)
+    ),
+
+    BLACKTIDE(
+            "blacktide",
+            "&3&lBlacktide",
+            "&3&lBLACKTIDE ARMOR",
+            "&b",
+            "Abyssal Maelstrom",
+            65.0,
+            8.0,
+            30,
+            stats(ArmorStat.WEAPON_XP, 10.0, ArmorStat.DAMAGE, 5.0),
+            stats(ArmorStat.WEAPON_XP, 20.0),
+            stats(ArmorStat.WEAPON_XP, 35.0, ArmorStat.DAMAGE, 30.0)
+    ),
+
+    ROYAL_GUARD(
+            "royal_guard",
+            "&6&lRoyal Guard",
+            "&6&lROYAL GUARD ARMOR",
+            "&e",
+            "Divine Guard",
+            0.0,
+            0.0,
+            45,
+            stats(ArmorStat.HEALTH, 15.0, ArmorStat.DAMAGE_REDUCTION, 8.0),
+            stats(ArmorStat.HEALTH, 25.0),
+            stats(ArmorStat.HEALTH, 50.0, ArmorStat.DAMAGE_REDUCTION, 30.0)
     );
 
     private final String id;
@@ -147,9 +158,7 @@ public enum SpecialArmorSet {
     private static Map<ArmorStat, Double> stats(Object... values) {
         Map<ArmorStat, Double> stats = new EnumMap<>(ArmorStat.class);
 
-        for (int i = 0; i < values.length; i += 2) {
-            stats.put((ArmorStat) values[i], (Double) values[i + 1]);
-        }
+        for (int i = 0; i < values.length; i += 2) stats.put((ArmorStat) values[i], (Double) values[i + 1]);
 
         return stats;
     }

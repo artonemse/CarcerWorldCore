@@ -35,6 +35,7 @@ public class SpecialArmorGenerator {
         meta.setDisplayName(color(set.getDisplayName() + " " + slot.getDisplayName()));
 
         List<String> lore = new ArrayList<>();
+
         lore.add("");
         lore.add(color(set.getArmorTitle()));
 
@@ -51,19 +52,11 @@ public class SpecialArmorGenerator {
         addStats(lore, set.getFourPieceStats(), set.getAccentColor());
 
         lore.add("");
-        lore.add(color("&5&lMAGIC ABILITY"));
-        lore.add(color("&7&l| &f" + set.getAbilityName()));
-        lore.add(color("&7&l| &fDamage: &d" + format(set.getAbilityDamage())));
-        lore.add(color("&7&l| &fRadius: &d" + format(set.getAbilityRadius()) + " Blocks"));
-        lore.add(color("&7&l| &fCooldown: &d" + set.getAbilityCooldown() + " Seconds"));
 
-        if (set == SpecialArmorSet.GRAVEBORN) {
-            lore.add(color("&7&l| &fHealing: &d30% Damage Dealt"));
-            lore.add(color("&7&l| &fMax Healing: &d40 HP"));
-        }
+        addAbilityLore(lore, set);
 
         lore.add("");
-        lore.add(color("&d&lSneak + Right Click to Cast"));
+        lore.add(color(set.getAccentColor() + "&lSneak + Right Click to Cast"));
 
         meta.setLore(lore);
         meta.setUnbreakable(true);
@@ -75,7 +68,52 @@ public class SpecialArmorGenerator {
         meta.getPersistentDataContainer().set(slotKey, PersistentDataType.STRING, slot.name());
 
         item.setItemMeta(meta);
+
         return item;
+    }
+
+    private void addAbilityLore(List<String> lore, SpecialArmorSet set) {
+        lore.add(color(set.getAccentColor() + "&lMAGIC ABILITY"));
+        lore.add(color("&7&l| &f" + set.getAbilityName()));
+
+        switch (set) {
+            case BLACKTHORN -> {
+                lore.add(color("&7&l| &fDamage: &a50"));
+                lore.add(color("&7&l| &fRadius: &a8 Blocks"));
+                lore.add(color("&7&l| &fCooldown: &a30 Seconds"));
+            }
+
+            case GRAVEBORN -> {
+                lore.add(color("&7&l| &fFallback Damage: &d50"));
+                lore.add(color("&7&l| &fTargets: &dUp to 7"));
+                lore.add(color("&7&l| &fExecute Threshold: &d75% Health"));
+                lore.add(color("&7&l| &fHealing: &d30% Per Target"));
+                lore.add(color("&7&l| &fMax Healing: &d40 Hearts"));
+                lore.add(color("&7&l| &fRadius: &d8 Blocks"));
+                lore.add(color("&7&l| &fCooldown: &d30 Seconds"));
+            }
+
+            case BLACKTIDE -> {
+                lore.add(color("&7&l| &fPull Damage: &b15"));
+                lore.add(color("&7&l| &fCollapse Damage: &b50"));
+                lore.add(color("&7&l| &fTargets: &bUp to 10"));
+                lore.add(color("&7&l| &fRadius: &b8 Blocks"));
+                lore.add(color("&7&l| &fPull Duration: &b2 Seconds"));
+                lore.add(color("&7&l| &fCooldown: &b30 Seconds"));
+            }
+
+            case ROYAL_GUARD -> {
+                lore.add(color("&e&lGuardian of Restoration"));
+                lore.add(color("&7&l| &fHealing: &e60% Maximum Health"));
+                lore.add(color("&7&l| &fResistance I: &e60 Seconds"));
+                lore.add(color(""));
+                lore.add(color("&6&lGuardian of Retribution"));
+                lore.add(color("&7&l| &fRetaliation: &e6 Seconds"));
+                lore.add(color("&7&l| &fIncoming Mob Damage: &ePrevented"));
+                lore.add(color("&7&l| &fPrevented Damage: &e100% Reflected"));
+                lore.add(color("&7&l| &fCooldown: &e45 Seconds"));
+            }
+        }
     }
 
     private void addStats(List<String> lore, Map<ArmorStat, Double> stats, String accentColor) {
@@ -101,6 +139,7 @@ public class SpecialArmorGenerator {
         if (item == null || !item.hasItemMeta()) return false;
 
         Byte value = item.getItemMeta().getPersistentDataContainer().get(specialArmorKey, PersistentDataType.BYTE);
+
         return value != null && value == (byte) 1;
     }
 
@@ -108,6 +147,7 @@ public class SpecialArmorGenerator {
         if (!isSpecialArmor(item)) return null;
 
         String id = item.getItemMeta().getPersistentDataContainer().get(setKey, PersistentDataType.STRING);
+
         return SpecialArmorSet.fromId(id);
     }
 
@@ -115,6 +155,7 @@ public class SpecialArmorGenerator {
         if (!isSpecialArmor(item)) return null;
 
         String value = item.getItemMeta().getPersistentDataContainer().get(slotKey, PersistentDataType.STRING);
+
         if (value == null) return null;
 
         try {
@@ -126,6 +167,7 @@ public class SpecialArmorGenerator {
 
     private String format(double value) {
         if (value == Math.floor(value)) return String.valueOf((long) value);
+
         return String.format("%.1f", value);
     }
 
