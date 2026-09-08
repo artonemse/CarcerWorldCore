@@ -136,6 +136,7 @@ public final class CarcerWorldCore extends JavaPlugin {
     private SpecialArmorGenerator specialArmorGenerator;
     private SpecialArmorManager specialArmorManager;
     private BlackthornAbility blackthornAbility;
+    private GravebornAbility gravebornAbility;
 
 
 
@@ -289,12 +290,13 @@ public final class CarcerWorldCore extends JavaPlugin {
         armorManager = new ArmorManager(this, genericArmorGenerator, specialArmorManager);
 
         blackthornAbility = new BlackthornAbility(this);
+        gravebornAbility = new GravebornAbility(this);
 
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
-        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
 
         salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);

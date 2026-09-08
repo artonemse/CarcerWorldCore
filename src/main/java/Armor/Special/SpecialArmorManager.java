@@ -26,6 +26,14 @@ public class SpecialArmorManager {
         return getPieceCount(player, set) >= 4;
     }
 
+    public SpecialArmorSet getFullSet(Player player) {
+        for (SpecialArmorSet set : SpecialArmorSet.values()) {
+            if (hasFullSet(player, set)) return set;
+        }
+
+        return null;
+    }
+
     public double getModifierPercent(Player player, ArmorStat stat) {
         double total = 0.0;
 
@@ -34,16 +42,10 @@ public class SpecialArmorManager {
 
             if (pieces <= 0) continue;
 
-            if (stat == ArmorStat.HEALTH) total += set.getPieceHealth() * pieces;
-            if (stat == ArmorStat.DAMAGE) total += set.getPieceDamage() * pieces;
-            if (stat == ArmorStat.DAMAGE_REDUCTION) total += set.getPieceDamageReduction() * pieces;
+            total += set.getPieceStat(stat) * pieces;
 
-            if (pieces >= 2 && stat == ArmorStat.DAMAGE) total += set.getTwoPieceDamage();
-
-            if (pieces >= 4) {
-                if (stat == ArmorStat.DAMAGE) total += set.getFourPieceDamage();
-                if (stat == ArmorStat.DAMAGE_REDUCTION) total += set.getFourPieceDamageReduction();
-            }
+            if (pieces >= 2) total += set.getTwoPieceStat(stat);
+            if (pieces >= 4) total += set.getFourPieceStat(stat);
         }
 
         return total;

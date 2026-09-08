@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,12 +18,18 @@ public class SpecialArmorAbilityListener implements Listener {
     private final CarcerWorldCore plugin;
     private final SpecialArmorManager specialArmorManager;
     private final BlackthornAbility blackthornAbility;
-    private final Map<UUID, Long> blackthornCooldowns = new HashMap<>();
+    private final GravebornAbility gravebornAbility;
+    private final Map<SpecialArmorSet, Map<UUID, Long>> cooldowns = new EnumMap<>(SpecialArmorSet.class);
 
-    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility) {
+    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility) {
         this.plugin = plugin;
         this.specialArmorManager = specialArmorManager;
         this.blackthornAbility = blackthornAbility;
+        this.gravebornAbility = gravebornAbility;
+
+        for (SpecialArmorSet set : SpecialArmorSet.values()) {
+            cooldowns.put(set, new java.util.HashMap<>());
+        }
     }
 
     @EventHandler
@@ -37,36 +43,51 @@ public class SpecialArmorAbilityListener implements Listener {
 
         if (!player.isSneaking()) return;
         if (!plugin.getWeaponManager().isCarcerWeapon(player.getInventory().getItemInMainHand())) return;
-        if (!specialArmorManager.hasFullSet(player, SpecialArmorSet.BLACKTHORN)) return;
+
+        SpecialArmorSet set = specialArmorManager.getFullSet(player);
+        if (set == null) return;
 
         event.setCancelled(true);
 
-        long remaining = getRemainingCooldown(player);
+        long remaining = getRemainingCooldown(player, set);
 
         if (remaining > 0) {
-            player.sendMessage("§2§lBLACKTHORN §7§l| §fThornstorm is on cooldown for §a" + remaining + "s§f.");
+            player.sendMessage(color(set.getDisplayName() + " &7&l| &f" + set.getAbilityName() + " is on cooldown for " + set.getAccentColor() + remaining + "s&f."));
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.7f, 0.8f);
             return;
         }
 
-        blackthornCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        cooldowns.get(set).put(player.getUniqueId(), System.currentTimeMillis());
 
-        player.sendMessage("§2§lBLACKTHORN §7§l| §fYou cast §a§lThornstorm§f!");
-        blackthornAbility.cast(player);
+        player.sendMessage(color(set.getDisplayName() + " &7&l| &fYou cast " + set.getAccentColor() + "&l" + set.getAbilityName() + "&f!"));
+
+        castAbility(player, set);
     }
 
-    private long getRemainingCooldown(Player player) {
-        Long lastUsed = blackthornCooldowns.get(player.getUniqueId());
+    private void castAbility(Player player, SpecialArmorSet set) {
+        switch (set) {
+            case BLACKTHORN -> blackthornAbility.cast(player);
+            case GRAVEBORN -> gravebornAbility.cast(player);
+        }
+    }
+
+    private long getRemainingCooldown(Player player, SpecialArmorSet set) {
+        Long lastUsed = cooldowns.get(set).get(player.getUniqueId());
         if (lastUsed == null) return 0;
 
         long elapsed = System.currentTimeMillis() - lastUsed;
-        long remaining = blackthornAbility.getCooldown() - elapsed;
+        long cooldown = set.getAbilityCooldown() * 1000L;
+        long remaining = cooldown - elapsed;
 
         if (remaining <= 0) {
-            blackthornCooldowns.remove(player.getUniqueId());
+            cooldowns.get(set).remove(player.getUniqueId());
             return 0;
         }
 
         return (long) Math.ceil(remaining / 1000.0);
+    }
+
+    private String color(String text) {
+        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
     }
 }

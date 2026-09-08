@@ -1,5 +1,6 @@
 package Armor.Special;
 
+import Armor.Generic.ArmorStat;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -11,6 +12,7 @@ import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SpecialArmorGenerator {
 
@@ -34,21 +36,32 @@ public class SpecialArmorGenerator {
 
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add(color("&2&lBLACKTHORN ARMOR"));
-        lore.add(color("&7&l| &fHealth: &a+" + format(set.getPieceHealth()) + "%"));
-        lore.add(color("&7&l| &fDamage: &a+" + format(set.getPieceDamage()) + "%"));
-        lore.add(color("&7&l| &fDamage Reduction: &a+" + format(set.getPieceDamageReduction()) + "%"));
+        lore.add(color(set.getArmorTitle()));
+
+        addStats(lore, set.getPieceStats(), set.getAccentColor());
+
         lore.add("");
-        lore.add(color("&2&lSET BONUS"));
-        lore.add(color("&7&l| &f2 Pieces: &a+" + format(set.getTwoPieceDamage()) + "% Damage"));
-        lore.add(color("&7&l| &f4 Pieces: &a+" + format(set.getFourPieceDamage()) + "% Damage"));
-        lore.add(color("&7&l| &f          &a+" + format(set.getFourPieceDamageReduction()) + "% Damage Reduction"));
+        lore.add(color(set.getAccentColor() + "&lSET BONUS"));
+        lore.add(color("&7&l| &f2 Pieces:"));
+
+        addStats(lore, set.getTwoPieceStats(), set.getAccentColor());
+
+        lore.add(color("&7&l| &f4 Pieces:"));
+
+        addStats(lore, set.getFourPieceStats(), set.getAccentColor());
+
         lore.add("");
         lore.add(color("&5&lMAGIC ABILITY"));
-        lore.add(color("&7&l| &fThornstorm"));
-        lore.add(color("&7&l| &fDamage: &d250% Weapon Damage"));
-        lore.add(color("&7&l| &fRadius: &d8 Blocks"));
-        lore.add(color("&7&l| &fCooldown: &d30 Seconds"));
+        lore.add(color("&7&l| &f" + set.getAbilityName()));
+        lore.add(color("&7&l| &fDamage: &d" + format(set.getAbilityDamage())));
+        lore.add(color("&7&l| &fRadius: &d" + format(set.getAbilityRadius()) + " Blocks"));
+        lore.add(color("&7&l| &fCooldown: &d" + set.getAbilityCooldown() + " Seconds"));
+
+        if (set == SpecialArmorSet.GRAVEBORN) {
+            lore.add(color("&7&l| &fHealing: &d30% Damage Dealt"));
+            lore.add(color("&7&l| &fMax Healing: &d40 HP"));
+        }
+
         lore.add("");
         lore.add(color("&d&lSneak + Right Click to Cast"));
 
@@ -63,6 +76,25 @@ public class SpecialArmorGenerator {
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    private void addStats(List<String> lore, Map<ArmorStat, Double> stats, String accentColor) {
+        for (Map.Entry<ArmorStat, Double> entry : stats.entrySet()) {
+            lore.add(color("&7&l| &f" + getStatName(entry.getKey()) + ": " + accentColor + "+" + format(entry.getValue()) + "%"));
+        }
+    }
+
+    private String getStatName(ArmorStat stat) {
+        return switch (stat) {
+            case HEALTH -> "Health";
+            case DAMAGE -> "Damage";
+            case SOUL_REWARD -> "Soul Reward";
+            case WEAPON_XP -> "Weapon XP";
+            case LOOT_FIND -> "Loot Find";
+            case DAMAGE_REDUCTION -> "Damage Reduction";
+            case MOVEMENT_SPEED -> "Movement Speed";
+            case HEALING -> "Healing";
+        };
     }
 
     public boolean isSpecialArmor(ItemStack item) {

@@ -1,36 +1,81 @@
 package Armor.Special;
 
+import Armor.Generic.ArmorStat;
+
+import java.util.EnumMap;
+import java.util.Map;
+
 public enum SpecialArmorSet {
 
     BLACKTHORN(
             "blackthorn",
             "&2&lBlackthorn",
-            15.0,
-            10.0,
+            "&2&lBLACKTHORN ARMOR",
+            "&a",
+            "Thornstorm",
+            50.0,
             8.0,
-            20.0,
-            40.0,
-            20.0
+            30,
+            stats(
+                    ArmorStat.HEALTH, 15.0,
+                    ArmorStat.DAMAGE, 10.0,
+                    ArmorStat.DAMAGE_REDUCTION, 8.0
+            ),
+            stats(
+                    ArmorStat.DAMAGE, 20.0
+            ),
+            stats(
+                    ArmorStat.DAMAGE, 40.0,
+                    ArmorStat.DAMAGE_REDUCTION, 20.0
+            )
+    ),
+
+    GRAVEBORN(
+            "graveborn",
+            "&5&lGraveborn",
+            "&5&lGRAVEBORN ARMOR",
+            "&d",
+            "Soul Reap",
+            35.0,
+            7.0,
+            25,
+            stats(
+                    ArmorStat.HEALTH, 10.0,
+                    ArmorStat.DAMAGE_REDUCTION, 10.0
+            ),
+            stats(
+                    ArmorStat.DAMAGE_REDUCTION, 20.0
+            ),
+            stats(
+                    ArmorStat.DAMAGE_REDUCTION, 35.0,
+                    ArmorStat.DAMAGE, 25.0
+            )
     );
 
     private final String id;
     private final String displayName;
-    private final double pieceHealth;
-    private final double pieceDamage;
-    private final double pieceDamageReduction;
-    private final double twoPieceDamage;
-    private final double fourPieceDamage;
-    private final double fourPieceDamageReduction;
+    private final String armorTitle;
+    private final String accentColor;
+    private final String abilityName;
+    private final double abilityDamage;
+    private final double abilityRadius;
+    private final int abilityCooldown;
+    private final Map<ArmorStat, Double> pieceStats;
+    private final Map<ArmorStat, Double> twoPieceStats;
+    private final Map<ArmorStat, Double> fourPieceStats;
 
-    SpecialArmorSet(String id, String displayName, double pieceHealth, double pieceDamage, double pieceDamageReduction, double twoPieceDamage, double fourPieceDamage, double fourPieceDamageReduction) {
+    SpecialArmorSet(String id, String displayName, String armorTitle, String accentColor, String abilityName, double abilityDamage, double abilityRadius, int abilityCooldown, Map<ArmorStat, Double> pieceStats, Map<ArmorStat, Double> twoPieceStats, Map<ArmorStat, Double> fourPieceStats) {
         this.id = id;
         this.displayName = displayName;
-        this.pieceHealth = pieceHealth;
-        this.pieceDamage = pieceDamage;
-        this.pieceDamageReduction = pieceDamageReduction;
-        this.twoPieceDamage = twoPieceDamage;
-        this.fourPieceDamage = fourPieceDamage;
-        this.fourPieceDamageReduction = fourPieceDamageReduction;
+        this.armorTitle = armorTitle;
+        this.accentColor = accentColor;
+        this.abilityName = abilityName;
+        this.abilityDamage = abilityDamage;
+        this.abilityRadius = abilityRadius;
+        this.abilityCooldown = abilityCooldown;
+        this.pieceStats = pieceStats;
+        this.twoPieceStats = twoPieceStats;
+        this.fourPieceStats = fourPieceStats;
     }
 
     public String getId() {
@@ -41,28 +86,52 @@ public enum SpecialArmorSet {
         return displayName;
     }
 
-    public double getPieceHealth() {
-        return pieceHealth;
+    public String getArmorTitle() {
+        return armorTitle;
     }
 
-    public double getPieceDamage() {
-        return pieceDamage;
+    public String getAccentColor() {
+        return accentColor;
     }
 
-    public double getPieceDamageReduction() {
-        return pieceDamageReduction;
+    public String getAbilityName() {
+        return abilityName;
     }
 
-    public double getTwoPieceDamage() {
-        return twoPieceDamage;
+    public double getAbilityDamage() {
+        return abilityDamage;
     }
 
-    public double getFourPieceDamage() {
-        return fourPieceDamage;
+    public double getAbilityRadius() {
+        return abilityRadius;
     }
 
-    public double getFourPieceDamageReduction() {
-        return fourPieceDamageReduction;
+    public int getAbilityCooldown() {
+        return abilityCooldown;
+    }
+
+    public double getPieceStat(ArmorStat stat) {
+        return pieceStats.getOrDefault(stat, 0.0);
+    }
+
+    public double getTwoPieceStat(ArmorStat stat) {
+        return twoPieceStats.getOrDefault(stat, 0.0);
+    }
+
+    public double getFourPieceStat(ArmorStat stat) {
+        return fourPieceStats.getOrDefault(stat, 0.0);
+    }
+
+    public Map<ArmorStat, Double> getPieceStats() {
+        return pieceStats;
+    }
+
+    public Map<ArmorStat, Double> getTwoPieceStats() {
+        return twoPieceStats;
+    }
+
+    public Map<ArmorStat, Double> getFourPieceStats() {
+        return fourPieceStats;
     }
 
     public static SpecialArmorSet fromId(String id) {
@@ -73,5 +142,15 @@ public enum SpecialArmorSet {
         }
 
         return null;
+    }
+
+    private static Map<ArmorStat, Double> stats(Object... values) {
+        Map<ArmorStat, Double> stats = new EnumMap<>(ArmorStat.class);
+
+        for (int i = 0; i < values.length; i += 2) {
+            stats.put((ArmorStat) values[i], (Double) values[i + 1]);
+        }
+
+        return stats;
     }
 }
