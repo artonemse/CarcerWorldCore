@@ -308,7 +308,9 @@ public final class CarcerWorldCore extends JavaPlugin {
         // ADMIN COMMANDS
         // ================================
         warpManager = new WarpManager(this);
-        getCommand("carcer").setExecutor(new CarcerAdminCommand(this));
+        CarcerAdminCommand carcerAdminCommand = new CarcerAdminCommand(this);
+        getCommand("carcer").setExecutor(carcerAdminCommand);
+        getCommand("carcer").setTabCompleter(carcerAdminCommand);
         getCommand("resetseason").setExecutor(new ResetSeasonCommand(this));
         getCommand("setwarp").setExecutor(new SetWarpCommand(warpManager));
         getCommand("delwarp").setExecutor(new DelWarpCommand(warpManager));

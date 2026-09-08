@@ -11,8 +11,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
+import Armor.Special.SpecialArmorSet;
+import Armor.Special.SpecialArmorSlot;
+import org.bukkit.command.TabCompleter;
 
-public class CarcerAdminCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class CarcerAdminCommand implements CommandExecutor, TabCompleter {
 
     private final CarcerWorldCore plugin;
 
@@ -59,17 +65,35 @@ public class CarcerAdminCommand implements CommandExecutor {
             sender.sendMessage(color("&a&lADMIN &7&l| &fGenerated a random generic armor piece."));
             return true;
         }
-        if (action.equals("giveblackthorn")) {
+        // ================================
+        // GIVE SPECIAL ARMOR SET
+        // ================================
+
+        if (action.equals("give")) {
             if (!(sender instanceof Player player)) {
                 sender.sendMessage(color("&c&lADMIN &7&l| &fOnly players can use this command."));
                 return true;
             }
 
-            for (Armor.Special.SpecialArmorSlot slot : Armor.Special.SpecialArmorSlot.values()) {
-                player.getInventory().addItem(plugin.getSpecialArmorGenerator().createArmor(Armor.Special.SpecialArmorSet.BLACKTHORN, slot));
+            if (args.length < 2) {
+                sender.sendMessage(color("&c&lADMIN &7&l| &fUsage: /carcer give <armor set>"));
+                sender.sendMessage(color("&7&l| &fAvailable: " + getArmorSetList()));
+                return true;
             }
 
-            sender.sendMessage(color("&2&lBLACKTHORN &7&l| &fYou received the complete Blackthorn armor set."));
+            SpecialArmorSet set = SpecialArmorSet.fromId(args[1]);
+
+            if (set == null) {
+                sender.sendMessage(color("&c&lADMIN &7&l| &fUnknown armor set: &c" + args[1]));
+                sender.sendMessage(color("&7&l| &fAvailable: " + getArmorSetList()));
+                return true;
+            }
+
+            for (SpecialArmorSlot slot : SpecialArmorSlot.values()) {
+                player.getInventory().addItem(plugin.getSpecialArmorGenerator().createArmor(set, slot));
+            }
+
+            sender.sendMessage(color(set.getDisplayName() + " &7&l| &fYou received the complete armor set."));
             return true;
         }
 
@@ -266,6 +290,13 @@ public class CarcerAdminCommand implements CommandExecutor {
         sendHelp(sender);
         return true;
     }
+    private String getArmorSetList() {
+        List<String> names = new ArrayList<>();
+
+        for (SpecialArmorSet set : SpecialArmorSet.values()) names.add(set.getId());
+
+        return String.join(", ", names);
+    }
 
     // ================================
     // QUEST ADMIN
@@ -452,5 +483,47 @@ public class CarcerAdminCommand implements CommandExecutor {
 
     private String color(String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (!sender.hasPermission("carcerworld.admin")) return completions;
+
+        if (args.length == 1) {
+            String input = args[0].toLowerCase();
+
+            String[] commands = {
+                    "give",
+                    "givearmor",
+                    "level",
+                    "exp",
+                    "skillpoints",
+                    "ascension",
+                    "skill",
+                    "enchant",
+                    "reset",
+                    "quest"
+            };
+
+            for (String value : commands) {
+                if (value.startsWith(input)) completions.add(value);
+            }
+
+            return completions;
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
+            String input = args[1].toLowerCase();
+
+            for (SpecialArmorSet set : SpecialArmorSet.values()) {
+                if (set.getId().startsWith(input)) completions.add(set.getId());
+            }
+
+            return completions;
+        }
+
+        return completions;
     }
 }
