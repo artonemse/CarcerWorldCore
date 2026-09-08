@@ -55,9 +55,9 @@ public enum SpecialArmorSet {
             "&6&lROYAL GUARD ARMOR",
             "&e",
             "Divine Guard",
-            0.0,
-            0.0,
-            45,
+            25.0,
+            7.0,
+            35,
             stats(ArmorStat.HEALTH, 15.0, ArmorStat.DAMAGE_REDUCTION, 8.0),
             stats(ArmorStat.HEALTH, 25.0),
             stats(ArmorStat.HEALTH, 50.0, ArmorStat.DAMAGE_REDUCTION, 30.0)

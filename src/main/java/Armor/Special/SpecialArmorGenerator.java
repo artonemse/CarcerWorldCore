@@ -6,7 +6,11 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataType;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
@@ -31,6 +35,10 @@ public class SpecialArmorGenerator {
         ItemMeta meta = item.getItemMeta();
 
         if (meta == null) return item;
+
+        if (set == SpecialArmorSet.ROYAL_GUARD && meta instanceof ArmorMeta armorMeta) {
+            armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SPIRE));
+        }
 
         meta.setDisplayName(color(set.getDisplayName() + " " + slot.getDisplayName()));
 
@@ -103,15 +111,14 @@ public class SpecialArmorGenerator {
             }
 
             case ROYAL_GUARD -> {
+                lore.add(color("&6&lGuardian of Judgment"));
+                lore.add(color("&7&l| &fSlam Damage: &e25"));
+                lore.add(color("&7&l| &fSlam Radius: &e7 Blocks"));
+                lore.add(color(""));
                 lore.add(color("&e&lGuardian of Restoration"));
                 lore.add(color("&7&l| &fHealing: &e60% Maximum Health"));
                 lore.add(color("&7&l| &fResistance I: &e60 Seconds"));
-                lore.add(color(""));
-                lore.add(color("&6&lGuardian of Retribution"));
-                lore.add(color("&7&l| &fRetaliation: &e6 Seconds"));
-                lore.add(color("&7&l| &fIncoming Mob Damage: &ePrevented"));
-                lore.add(color("&7&l| &fPrevented Damage: &e100% Reflected"));
-                lore.add(color("&7&l| &fCooldown: &e45 Seconds"));
+                lore.add(color("&7&l| &fCooldown: &e35 Seconds"));
             }
         }
     }

@@ -301,7 +301,6 @@ public final class CarcerWorldCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility), this);
-        getServer().getPluginManager().registerEvents(new RoyalGuardRetaliationListener(this, royalGuardAbility), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
 
         salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);
