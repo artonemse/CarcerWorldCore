@@ -1,6 +1,7 @@
 package Armor.Special;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -42,6 +43,9 @@ public class RoyalGuardAbility {
     private static final int RESISTANCE_DURATION = 20 * 60;
     private static final long COOLDOWN = 35_000L;
 
+    private static final Particle.DustOptions GOLD_DUST = new Particle.DustOptions(Color.fromRGB(255, 200, 40), 1.25f);
+    private static final Particle.DustOptions BRIGHT_GOLD_DUST = new Particle.DustOptions(Color.fromRGB(255, 235, 120), 1.0f);
+
     private final CarcerWorldCore plugin;
     private final NamespacedKey apparitionKey;
     private final NamespacedKey abilityDamageKey;
@@ -80,7 +84,6 @@ public class RoyalGuardAbility {
         ArmorStand guard = spawnJudgmentGuard(start, impact);
 
         trackGuardian(player, guard);
-
         createJudgmentArrival(start);
 
         new BukkitRunnable() {
@@ -179,11 +182,13 @@ public class RoyalGuardAbility {
     }
 
     private void slamGround(Player player, Location impact) {
-        impact.getWorld().spawnParticle(Particle.EXPLOSION, impact.clone().add(0, 0.4, 0), 3, 0.5, 0.2, 0.5, 0);
-        impact.getWorld().spawnParticle(Particle.CLOUD, impact.clone().add(0, 0.2, 0), 60, 1.8, 0.25, 1.8, 0.10);
-        impact.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, impact.clone().add(0, 0.4, 0), 45, 1.5, 0.4, 1.5, 0.12);
-        impact.getWorld().spawnParticle(Particle.END_ROD, impact.clone().add(0, 0.4, 0), 30, 1.2, 0.3, 1.2, 0.08);
-        impact.getWorld().spawnParticle(Particle.WAX_ON, impact.clone().add(0, 0.3, 0), 35, 1.5, 0.3, 1.5, 0.10);
+        Location center = impact.clone().add(0, 0.3, 0);
+
+        impact.getWorld().spawnParticle(Particle.EXPLOSION, center, 3, 0.5, 0.2, 0.5, 0);
+        impact.getWorld().spawnParticle(Particle.CLOUD, center, 50, 1.8, 0.25, 1.8, 0.10);
+        impact.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, center, 35, 1.5, 0.4, 1.5, 0.12);
+        impact.getWorld().spawnParticle(Particle.DUST, center, 45, 1.5, 0.35, 1.5, 0.05, GOLD_DUST);
+        impact.getWorld().spawnParticle(Particle.WAX_ON, center, 25, 1.4, 0.3, 1.4, 0.08);
 
         impact.getWorld().playSound(impact, Sound.BLOCK_ANVIL_LAND, 1.3f, 0.65f);
         impact.getWorld().playSound(impact, Sound.ENTITY_IRON_GOLEM_ATTACK, 1.4f, 0.55f);
@@ -240,10 +245,10 @@ public class RoyalGuardAbility {
 
             Location point = center.clone().add(x, 0.15, z);
 
-            center.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0, 0, 0);
+            center.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, GOLD_DUST);
 
-            if (i % 2 == 0) center.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, point, 1, 0, 0.05, 0, 0);
-            if (i % 4 == 0) center.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0, 0, 0, 0);
+            if (i % 2 == 0) center.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0.05, 0, 0);
+            if (i % 4 == 0) center.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, point, 1, 0, 0.05, 0, 0);
         }
     }
 
@@ -254,7 +259,6 @@ public class RoyalGuardAbility {
         ArmorStand guard = createGuardian(summonLocation);
 
         trackGuardian(player, guard);
-
         playRestorationSummon(player, summonLocation);
 
         new BukkitRunnable() {
@@ -292,9 +296,7 @@ public class RoyalGuardAbility {
                     healed = true;
                 }
 
-                if (tick > 40 && tick <= 58) {
-                    createHealingAfterglow(player, tick - 40);
-                }
+                if (tick > 40 && tick <= 58) createHealingAfterglow(player, tick - 40);
 
                 if (tick == 62) guard.getEquipment().setItemInMainHand(null);
                 if (tick == 65) guard.getEquipment().setHelmet(null);
@@ -345,10 +347,10 @@ public class RoyalGuardAbility {
 
         Location center = player.getLocation().clone().add(0, 1.0, 0);
 
-        player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, center, 80, 1.4, 1.1, 1.4, 0.15);
-        player.getWorld().spawnParticle(Particle.END_ROD, center, 45, 1.2, 1.0, 1.2, 0.08);
-        player.getWorld().spawnParticle(Particle.HEART, center, 18, 0.8, 0.8, 0.8, 0.06);
-        player.getWorld().spawnParticle(Particle.WAX_ON, center, 35, 1.2, 0.8, 1.2, 0.10);
+        player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, center, 55, 1.2, 1.0, 1.2, 0.12);
+        player.getWorld().spawnParticle(Particle.DUST, center, 55, 1.1, 0.9, 1.1, 0.04, GOLD_DUST);
+        player.getWorld().spawnParticle(Particle.HEART, center, 15, 0.8, 0.8, 0.8, 0.05);
+        player.getWorld().spawnParticle(Particle.WAX_ON, center, 25, 1.0, 0.8, 1.0, 0.08);
 
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_TOTEM_USE, 1.0f, 1.35f);
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1.2f, 1.5f);
@@ -373,7 +375,7 @@ public class RoyalGuardAbility {
         Location point = start.clone();
 
         for (double traveled = 0; traveled <= distance; traveled += 0.22) {
-            player.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0.02, 0.02, 0.02, 0);
+            player.getWorld().spawnParticle(Particle.DUST, point, 2, 0.03, 0.03, 0.03, 0, BRIGHT_GOLD_DUST);
             player.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0.03, 0.03, 0.03, 0);
 
             point.add(step);
@@ -399,7 +401,7 @@ public class RoyalGuardAbility {
 
                     Location point = center.clone().add(x, 0.25, z);
 
-                    center.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0, 0, 0, 0);
+                    center.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, GOLD_DUST);
 
                     if (i % 2 == 0) center.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0, 0, 0);
                 }
@@ -424,7 +426,7 @@ public class RoyalGuardAbility {
 
             Location point = base.clone().add(x, height, z);
 
-            guard.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0, 0, 0, 0);
+            guard.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, GOLD_DUST);
             guard.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0, 0, 0);
         }
 
@@ -444,19 +446,18 @@ public class RoyalGuardAbility {
 
             Location point = sword.clone().add(x, y, z);
 
-            guard.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0, 0, 0, 0);
+            guard.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, BRIGHT_GOLD_DUST);
             guard.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0, 0, 0);
         }
 
         if (tick % 5 == 0) {
-            guard.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, sword, 5, 0.2, 0.2, 0.2, 0.03);
+            guard.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, sword, 4, 0.2, 0.2, 0.2, 0.03);
             guard.getWorld().playSound(guard.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.4f);
         }
     }
 
     private void createHealingAfterglow(Player player, int tick) {
         Location center = player.getLocation().clone().add(0, 0.8, 0);
-
         double angle = tick * 0.45;
 
         for (int i = 0; i < 5; i++) {
@@ -468,22 +469,24 @@ public class RoyalGuardAbility {
 
             Location point = center.clone().add(x, y, z);
 
-            player.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0, 0, 0, 0);
+            player.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, BRIGHT_GOLD_DUST);
         }
     }
 
     private void playOpeningEffect(Player player) {
         Location center = player.getLocation().clone().add(0, 1.0, 0);
 
-        player.getWorld().spawnParticle(Particle.END_ROD, center, 18, 0.8, 0.8, 0.8, 0.05);
-        player.getWorld().spawnParticle(Particle.WAX_ON, center, 20, 0.9, 0.7, 0.9, 0.06);
+        player.getWorld().spawnParticle(Particle.DUST, center, 20, 0.8, 0.8, 0.8, 0.04, GOLD_DUST);
+        player.getWorld().spawnParticle(Particle.WAX_ON, center, 15, 0.8, 0.7, 0.8, 0.05);
 
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.8f, 1.35f);
     }
 
     private void createJudgmentArrival(Location location) {
-        location.getWorld().spawnParticle(Particle.END_ROD, location.clone().add(0, 1.0, 0), 30, 0.6, 1.0, 0.6, 0.05);
-        location.getWorld().spawnParticle(Particle.WAX_ON, location.clone().add(0, 1.0, 0), 25, 0.6, 1.0, 0.6, 0.07);
+        Location center = location.clone().add(0, 1.0, 0);
+
+        location.getWorld().spawnParticle(Particle.DUST, center, 30, 0.6, 1.0, 0.6, 0.04, GOLD_DUST);
+        location.getWorld().spawnParticle(Particle.WAX_ON, center, 20, 0.6, 1.0, 0.6, 0.06);
 
         location.getWorld().playSound(location, Sound.BLOCK_BEACON_ACTIVATE, 0.9f, 0.8f);
     }
@@ -491,21 +494,25 @@ public class RoyalGuardAbility {
     private void createRushTrail(Location location) {
         Location center = location.clone().add(0, 1.0, 0);
 
-        location.getWorld().spawnParticle(Particle.END_ROD, center, 3, 0.25, 0.5, 0.25, 0.02);
-        location.getWorld().spawnParticle(Particle.WAX_ON, center, 3, 0.3, 0.5, 0.3, 0.03);
+        location.getWorld().spawnParticle(Particle.DUST, center, 3, 0.25, 0.5, 0.25, 0.01, GOLD_DUST);
+        location.getWorld().spawnParticle(Particle.WAX_ON, center, 2, 0.25, 0.4, 0.25, 0.02);
         location.getWorld().spawnParticle(Particle.CLOUD, location.clone().add(0, 0.15, 0), 2, 0.25, 0.05, 0.25, 0.02);
     }
 
     private void createLeapParticles(Location location) {
-        location.getWorld().spawnParticle(Particle.END_ROD, location.clone().add(0, 0.5, 0), 3, 0.25, 0.25, 0.25, 0.02);
-        location.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, location.clone().add(0, 0.4, 0), 2, 0.2, 0.2, 0.2, 0.03);
+        Location center = location.clone().add(0, 0.5, 0);
+
+        location.getWorld().spawnParticle(Particle.DUST, center, 4, 0.25, 0.25, 0.25, 0.02, GOLD_DUST);
+        location.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, center, 2, 0.2, 0.2, 0.2, 0.03);
     }
 
     private void playRestorationSummon(Player player, Location location) {
         createSummoningCircle(location);
 
-        location.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, location.clone().add(0, 1.0, 0), 40, 0.8, 1.0, 0.8, 0.08);
-        location.getWorld().spawnParticle(Particle.END_ROD, location.clone().add(0, 1.0, 0), 30, 0.7, 1.0, 0.7, 0.05);
+        Location center = location.clone().add(0, 1.0, 0);
+
+        location.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, center, 30, 0.8, 1.0, 0.8, 0.07);
+        location.getWorld().spawnParticle(Particle.DUST, center, 35, 0.7, 1.0, 0.7, 0.04, GOLD_DUST);
 
         location.getWorld().playSound(location, Sound.BLOCK_BEACON_ACTIVATE, 1.1f, 1.45f);
         location.getWorld().playSound(location, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1.2f, 1.1f);
@@ -523,9 +530,9 @@ public class RoyalGuardAbility {
 
                 Location point = center.clone().add(x, 0.1, z);
 
-                center.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0, 0, 0);
+                center.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, GOLD_DUST);
 
-                if (i % 3 == 0) center.getWorld().spawnParticle(Particle.END_ROD, point, 1, 0, 0, 0, 0);
+                if (i % 3 == 0) center.getWorld().spawnParticle(Particle.WAX_ON, point, 1, 0, 0, 0, 0);
             }
         }
     }
@@ -661,9 +668,9 @@ public class RoyalGuardAbility {
 
         Location center = guard.getLocation().clone().add(0, 1.0, 0);
 
-        guard.getWorld().spawnParticle(Particle.END_ROD, center, 35, 0.6, 1.0, 0.6, 0.06);
-        guard.getWorld().spawnParticle(Particle.WAX_ON, center, 35, 0.6, 1.0, 0.6, 0.08);
-        guard.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, center, 20, 0.5, 0.9, 0.5, 0.08);
+        guard.getWorld().spawnParticle(Particle.DUST, center, 30, 0.6, 1.0, 0.6, 0.05, GOLD_DUST);
+        guard.getWorld().spawnParticle(Particle.WAX_ON, center, 25, 0.6, 1.0, 0.6, 0.06);
+        guard.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, center, 15, 0.5, 0.9, 0.5, 0.07);
 
         guard.getWorld().playSound(guard.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.7f, 1.4f);
 
