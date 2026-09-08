@@ -1,6 +1,7 @@
 package Quests;
 
-import org.bukkit.configuration.ConfigurationSection;
+import Armor.Special.SpecialArmorSet;
+import Armor.Special.SpecialArmorSlot;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
@@ -26,7 +27,7 @@ public class QuestLoader {
         if (!file.exists()) plugin.saveResource("quest-definitions.yml", false);
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        ConfigurationSection questsSection = config.getConfigurationSection("quests");
+        var questsSection = config.getConfigurationSection("quests");
         Map<String, Quest> quests = new HashMap<>();
 
         if (questsSection == null) return quests;
@@ -41,7 +42,7 @@ public class QuestLoader {
                 String prerequisite = config.getString(path + ".prerequisite", "");
 
                 List<QuestObjective> objectives = loadObjectives(config, path);
-                QuestReward reward = new QuestReward(config.getLong(path + ".rewards.souls", 0), config.getLong(path + ".rewards.gems", 0));
+                QuestReward reward = loadReward(config, path);
 
                 List<String> startDialogue = config.getStringList(path + ".dialogue.start");
                 List<String> activeDialogue = config.getStringList(path + ".dialogue.active");
@@ -59,6 +60,40 @@ public class QuestLoader {
 
         plugin.getLogger().info("[CarcerWorldCore] Loaded " + quests.size() + " quests.");
         return quests;
+    }
+
+    private QuestReward loadReward(FileConfiguration config, String questPath) {
+        long souls = config.getLong(questPath + ".rewards.souls", 0);
+        long gems = config.getLong(questPath + ".rewards.gems", 0);
+
+        String setName = config.getString(questPath + ".rewards.special-armor.set", "");
+        String pieceName = config.getString(questPath + ".rewards.special-armor.piece", "");
+
+        SpecialArmorSet specialArmorSet = null;
+        SpecialArmorSlot specialArmorSlot = null;
+
+        if (!setName.isBlank() || !pieceName.isBlank()) {
+            if (setName.isBlank()) throw new IllegalArgumentException("Special armor reward is missing its set.");
+            if (pieceName.isBlank()) throw new IllegalArgumentException("Special armor reward is missing its piece.");
+
+            specialArmorSet = SpecialArmorSet.fromId(setName);
+
+            if (specialArmorSet == null) {
+                try {
+                    specialArmorSet = SpecialArmorSet.valueOf(setName.toUpperCase());
+                } catch (IllegalArgumentException exception) {
+                    throw new IllegalArgumentException("Unknown special armor set: " + setName);
+                }
+            }
+
+            try {
+                specialArmorSlot = SpecialArmorSlot.valueOf(pieceName.toUpperCase());
+            } catch (IllegalArgumentException exception) {
+                throw new IllegalArgumentException("Unknown special armor piece: " + pieceName);
+            }
+        }
+
+        return new QuestReward(souls, gems, specialArmorSet, specialArmorSlot);
     }
 
     private List<QuestObjective> loadObjectives(FileConfiguration config, String questPath) {

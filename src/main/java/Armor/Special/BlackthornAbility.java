@@ -17,7 +17,7 @@ import org.carcercore.carcerWorldCore.CarcerWorldCore;
 public class BlackthornAbility {
 
     private static final double RADIUS = 8.0;
-    private static final double DAMAGE_MULTIPLIER = 2.5;
+    private static final double ABILITY_DAMAGE = 50.0;
     private static final long COOLDOWN = 30_000L;
 
     private final CarcerWorldCore plugin;
@@ -132,16 +132,7 @@ public class BlackthornAbility {
     }
 
     private double calculateAbilityDamage(Player player) {
-        double damage = plugin.getWeaponManager().getDamage(player);
-
-        damage += plugin.getEnchantManager().getSharpnessBonus(player);
-        damage = plugin.getSkillManager().applyStrength(player, damage);
-
-        if (plugin.getArmorManager() != null) {
-            damage *= plugin.getArmorManager().getMultiplier(player, ArmorStat.DAMAGE);
-        }
-
-        return damage * DAMAGE_MULTIPLIER;
+        return ABILITY_DAMAGE;
     }
 
     public NamespacedKey getAbilityDamageKey() {

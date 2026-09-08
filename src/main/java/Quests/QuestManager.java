@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
 import java.io.File;
@@ -360,6 +361,11 @@ public class QuestManager {
         if (quest.getReward().getSouls() > 0) player.sendMessage(color("&6&lREWARD &8» &b+" + format(quest.getReward().getSouls()) + " Souls"));
         if (quest.getReward().getGems() > 0) player.sendMessage(color("&6&lREWARD &8» &d+" + format(quest.getReward().getGems()) + " Gems"));
 
+        if (quest.getReward().hasSpecialArmorReward()) {
+            String armorName = quest.getReward().getSpecialArmorSet().getDisplayName() + " " + quest.getReward().getSpecialArmorSlot().getDisplayName();
+            player.sendMessage(color("&6&lREWARD &8» " + armorName));
+        }
+
         player.sendMessage("");
 
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 1.0f);
@@ -373,6 +379,15 @@ public class QuestManager {
 
         if (reward.getSouls() > 0) plugin.getSoulManager().addSouls(player, reward.getSouls());
         if (reward.getGems() > 0) plugin.getGemManager().addGems(player, reward.getGems());
+
+        if (reward.hasSpecialArmorReward()) {
+            ItemStack armor = plugin.getSpecialArmorGenerator().createArmor(reward.getSpecialArmorSet(), reward.getSpecialArmorSlot());
+            Map<Integer, ItemStack> leftovers = player.getInventory().addItem(armor);
+
+            for (ItemStack leftover : leftovers.values()) {
+                player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+            }
+        }
     }
 
     private boolean isQuestComplete(Quest quest, PlayerQuest playerQuest) {
