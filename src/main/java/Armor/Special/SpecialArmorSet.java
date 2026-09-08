@@ -61,6 +61,20 @@ public enum SpecialArmorSet {
             stats(ArmorStat.HEALTH, 15.0, ArmorStat.DAMAGE_REDUCTION, 8.0),
             stats(ArmorStat.HEALTH, 25.0),
             stats(ArmorStat.HEALTH, 50.0, ArmorStat.DAMAGE_REDUCTION, 30.0)
+    ),
+
+    GOBLIN_SLAYER(
+            "goblin_slayer",
+            "&2&lGoblin Slayer",
+            "&2&lGOBLIN SLAYER ARMOR",
+            "&a",
+            "Blade Frenzy",
+            75.0,
+            6.0,
+            25,
+            stats(ArmorStat.DAMAGE, 10.0),
+            stats(ArmorStat.DAMAGE, 25.0),
+            stats(ArmorStat.DAMAGE, 50.0, ArmorStat.LOOT_FIND, 25.0)
     );
 
     private final String id;

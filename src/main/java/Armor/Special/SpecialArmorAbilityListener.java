@@ -23,15 +23,17 @@ public class SpecialArmorAbilityListener implements Listener {
     private final GravebornAbility gravebornAbility;
     private final BlacktideAbility blacktideAbility;
     private final RoyalGuardAbility royalGuardAbility;
+    private final GoblinSlayerAbility goblinSlayerAbility;
     private final Map<SpecialArmorSet, Map<UUID, Long>> cooldowns = new EnumMap<>(SpecialArmorSet.class);
 
-    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility, BlacktideAbility blacktideAbility, RoyalGuardAbility royalGuardAbility) {
+    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility, BlacktideAbility blacktideAbility, RoyalGuardAbility royalGuardAbility, GoblinSlayerAbility goblinSlayerAbility) {
         this.plugin = plugin;
         this.specialArmorManager = specialArmorManager;
         this.blackthornAbility = blackthornAbility;
         this.gravebornAbility = gravebornAbility;
         this.blacktideAbility = blacktideAbility;
         this.royalGuardAbility = royalGuardAbility;
+        this.goblinSlayerAbility = goblinSlayerAbility;
 
         for (SpecialArmorSet set : SpecialArmorSet.values()) cooldowns.put(set, new HashMap<>());
     }
@@ -76,6 +78,7 @@ public class SpecialArmorAbilityListener implements Listener {
             case GRAVEBORN -> gravebornAbility.cast(player);
             case BLACKTIDE -> blacktideAbility.cast(player);
             case ROYAL_GUARD -> royalGuardAbility.cast(player);
+            case GOBLIN_SLAYER -> goblinSlayerAbility.cast(player);
         }
     }
 

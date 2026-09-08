@@ -36,8 +36,9 @@ public class SpecialArmorGenerator {
 
         if (meta == null) return item;
 
-        if (set == SpecialArmorSet.ROYAL_GUARD && meta instanceof ArmorMeta armorMeta) {
-            armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SPIRE));
+        if (meta instanceof ArmorMeta armorMeta) {
+            if (set == SpecialArmorSet.ROYAL_GUARD) armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SPIRE));
+            if (set == SpecialArmorSet.GOBLIN_SLAYER) armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.RIB));
         }
 
         meta.setDisplayName(color(set.getDisplayName() + " " + slot.getDisplayName()));
@@ -119,6 +120,16 @@ public class SpecialArmorGenerator {
                 lore.add(color("&7&l| &fHealing: &e60% Maximum Health"));
                 lore.add(color("&7&l| &fResistance I: &e60 Seconds"));
                 lore.add(color("&7&l| &fCooldown: &e35 Seconds"));
+            }
+
+            case GOBLIN_SLAYER -> {
+                lore.add(color("&2&lBlade Frenzy"));
+                lore.add(color("&7&l| &fStrikes: &a5"));
+                lore.add(color("&7&l| &fDamage Per Strike: &a15"));
+                lore.add(color("&7&l| &fTotal Damage: &a75"));
+                lore.add(color("&7&l| &fTargets: &aUp to 10"));
+                lore.add(color("&7&l| &fRadius: &a6 Blocks"));
+                lore.add(color("&7&l| &fCooldown: &a25 Seconds"));
             }
         }
     }

@@ -139,6 +139,7 @@ public final class CarcerWorldCore extends JavaPlugin {
     private GravebornAbility gravebornAbility;
     private BlacktideAbility blacktideAbility;
     private RoyalGuardAbility royalGuardAbility;
+    private GoblinSlayerAbility goblinSlayerAbility;
 
 
 
@@ -295,12 +296,13 @@ public final class CarcerWorldCore extends JavaPlugin {
         gravebornAbility = new GravebornAbility(this);
         blacktideAbility = new BlacktideAbility(this);
         royalGuardAbility = new RoyalGuardAbility(this);
+        goblinSlayerAbility = new GoblinSlayerAbility(this);
 
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
-        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility, goblinSlayerAbility), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
 
         salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);
@@ -334,6 +336,7 @@ public final class CarcerWorldCore extends JavaPlugin {
         }
         if (questManager != null) questManager.saveAll();
         if (royalGuardAbility != null) royalGuardAbility.shutdown();
+        if (goblinSlayerAbility != null) goblinSlayerAbility.shutdown();
 
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }
