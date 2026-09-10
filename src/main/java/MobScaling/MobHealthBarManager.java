@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
@@ -21,8 +22,10 @@ public class MobHealthBarManager {
 
     public void updateHealthBar(LivingEntity mob) {
         if (mob instanceof Player) return;
+        if (mob instanceof ArmorStand) return;
 
         AttributeInstance maxHealthAttribute = mob.getAttribute(Attribute.MAX_HEALTH);
+
         if (maxHealthAttribute == null) return;
 
         int level = plugin.getMobScalingManager().getScalingLevel(mob);
@@ -35,6 +38,7 @@ public class MobHealthBarManager {
 
     private String getMobName(LivingEntity mob) {
         String storedName = mob.getPersistentDataContainer().get(mobNameKey, PersistentDataType.STRING);
+
         if (storedName != null) return storedName;
 
         String customName = mob.getCustomName();
@@ -49,6 +53,7 @@ public class MobHealthBarManager {
         }
 
         String name = formatEntityName(mob);
+
         mob.getPersistentDataContainer().set(mobNameKey, PersistentDataType.STRING, name);
 
         return name;
@@ -60,6 +65,7 @@ public class MobHealthBarManager {
 
         for (String word : name.split(" ")) {
             if (word.isEmpty()) continue;
+
             result.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(" ");
         }
 
@@ -68,6 +74,7 @@ public class MobHealthBarManager {
 
     private String formatHealth(double health) {
         if (health == Math.floor(health)) return String.valueOf((long) health);
+
         return String.format("%.1f", health);
     }
 

@@ -39,6 +39,7 @@ public class SpecialArmorGenerator {
         if (meta instanceof ArmorMeta armorMeta) {
             if (set == SpecialArmorSet.ROYAL_GUARD) armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SPIRE));
             if (set == SpecialArmorSet.GOBLIN_SLAYER) armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.RIB));
+            if (set == SpecialArmorSet.TIDECALLER) armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.TIDE));
         }
 
         meta.setDisplayName(color(set.getDisplayName() + " " + slot.getDisplayName()));
@@ -82,8 +83,8 @@ public class SpecialArmorGenerator {
     }
 
     private void addAbilityLore(List<String> lore, SpecialArmorSet set) {
-        lore.add(color(set.getAccentColor() + "&lMAGIC ABILITY"));
-        lore.add(color("&7&l| &f" + set.getAbilityName()));
+        lore.add(color(set.getAccentColor() + "&lMAGIC ABILITY - " + set.getAbilityName()));
+       // lore.add(color("&7&l| &f" + set.getAbilityName()));
 
         switch (set) {
             case BLACKTHORN -> {
@@ -123,13 +124,20 @@ public class SpecialArmorGenerator {
             }
 
             case GOBLIN_SLAYER -> {
-                lore.add(color("&2&lBlade Frenzy"));
+               // lore.add(color("&2&lBlade Frenzy"));
                 lore.add(color("&7&l| &fStrikes: &a5"));
-                lore.add(color("&7&l| &fDamage Per Strike: &a15"));
-                lore.add(color("&7&l| &fTotal Damage: &a75"));
+                lore.add(color("&7&l| &fDamage Per Strike: &a30"));
                 lore.add(color("&7&l| &fTargets: &aUp to 10"));
                 lore.add(color("&7&l| &fRadius: &a6 Blocks"));
                 lore.add(color("&7&l| &fCooldown: &a25 Seconds"));
+            }
+
+            case TIDECALLER -> {
+                //lore.add(color("&3&lRiptide"));
+                lore.add(color("&7&l| &fDash Distance: &b~10 Blocks"));
+                lore.add(color("&7&l| &fDamage: &b50"));
+                lore.add(color("&7&l| &fKnockback: &bTidal Launch"));
+                lore.add(color("&7&l| &fCooldown: &b20 Seconds"));
             }
         }
     }

@@ -140,6 +140,7 @@ public final class CarcerWorldCore extends JavaPlugin {
     private BlacktideAbility blacktideAbility;
     private RoyalGuardAbility royalGuardAbility;
     private GoblinSlayerAbility goblinSlayerAbility;
+    private TidecallerAbility tidecallerAbility;
 
 
 
@@ -297,13 +298,15 @@ public final class CarcerWorldCore extends JavaPlugin {
         blacktideAbility = new BlacktideAbility(this);
         royalGuardAbility = new RoyalGuardAbility(this);
         goblinSlayerAbility = new GoblinSlayerAbility(this);
+        tidecallerAbility = new TidecallerAbility(this);
 
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
-        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility, goblinSlayerAbility), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility, goblinSlayerAbility, tidecallerAbility), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
+        getServer().getPluginManager().registerEvents(tidecallerAbility, this);
 
         salvageManager = new SalvageManager(genericArmorGenerator, scrapManager);
         salvageGUI = new SalvageGUI(salvageManager, scrapManager);
@@ -337,6 +340,7 @@ public final class CarcerWorldCore extends JavaPlugin {
         if (questManager != null) questManager.saveAll();
         if (royalGuardAbility != null) royalGuardAbility.shutdown();
         if (goblinSlayerAbility != null) goblinSlayerAbility.shutdown();
+        if (tidecallerAbility != null) tidecallerAbility.shutdown();
 
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }

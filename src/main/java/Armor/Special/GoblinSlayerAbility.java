@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class GoblinSlayerAbility {
@@ -35,6 +36,7 @@ public class GoblinSlayerAbility {
     private static final int MAX_TARGETS = 10;
     private static final int TOTAL_STRIKES = 5;
     private static final int STRIKE_INTERVAL = 8;
+    private static final int BLADE_DIRECTION_INTERVAL = 5;
 
     private static final Particle.DustOptions GREEN_DUST = new Particle.DustOptions(Color.fromRGB(60, 220, 80), 1.15f);
     private static final Particle.DustOptions BRIGHT_GREEN_DUST = new Particle.DustOptions(Color.fromRGB(150, 255, 120), 0.9f);
@@ -43,6 +45,7 @@ public class GoblinSlayerAbility {
     private final NamespacedKey bladeKey;
     private final NamespacedKey abilityDamageKey;
     private final Map<UUID, List<ArmorStand>> activeBlades = new HashMap<>();
+    private final Random random = new Random();
 
     public GoblinSlayerAbility(CarcerWorldCore plugin) {
         this.plugin = plugin;
@@ -65,6 +68,18 @@ public class GoblinSlayerAbility {
 
     private void startFrenzy(Player player, List<ArmorStand> blades) {
         World castWorld = player.getWorld();
+        List<Vector> currentOffsets = new ArrayList<>();
+        List<Vector> targetOffsets = new ArrayList<>();
+
+        for (ArmorStand blade : blades) {
+            Vector current = randomBladeOffset();
+
+            currentOffsets.add(current);
+            targetOffsets.add(randomBladeOffset());
+
+            blade.teleport(getBladeLocation(player, current));
+            randomizeBladePose(blade);
+        }
 
         new BukkitRunnable() {
 
@@ -79,7 +94,17 @@ public class GoblinSlayerAbility {
                     return;
                 }
 
-                animateBlades(player, blades, tick);
+                if (tick > 0 && tick % BLADE_DIRECTION_INTERVAL == 0) {
+                    for (int i = 0; i < blades.size(); i++) {
+                        targetOffsets.set(i, randomBladeOffset());
+
+                        ArmorStand blade = blades.get(i);
+
+                        if (blade.isValid()) randomizeBladePose(blade);
+                    }
+                }
+
+                animateBlades(player, blades, currentOffsets, targetOffsets);
 
                 if (tick % STRIKE_INTERVAL == 0 && strikes < TOTAL_STRIKES) {
                     strikes++;
@@ -108,7 +133,8 @@ public class GoblinSlayerAbility {
         List<ArmorStand> blades = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
-            Location location = player.getLocation().clone().add(0, 1.0, 0);
+            Vector offset = randomBladeOffset();
+            Location location = getBladeLocation(player, offset);
             ArmorStand blade = location.getWorld().spawn(location, ArmorStand.class);
 
             blade.setVisible(false);
@@ -119,12 +145,15 @@ public class GoblinSlayerAbility {
             blade.setMarker(true);
             blade.setSilent(true);
             blade.setGlowing(true);
+            blade.setCustomName(null);
+            blade.setCustomNameVisible(false);
 
             EntityEquipment equipment = blade.getEquipment();
 
             equipment.setItemInMainHand(new ItemStack(Material.NETHERITE_SWORD));
 
-            blade.setRightArmPose(new EulerAngle(Math.toRadians(270), 0, Math.toRadians(15)));
+            randomizeBladePose(blade);
+
             blade.getPersistentDataContainer().set(bladeKey, PersistentDataType.BYTE, (byte) 1);
 
             blades.add(blade);
@@ -133,37 +162,70 @@ public class GoblinSlayerAbility {
         return blades;
     }
 
-    private void animateBlades(Player player, List<ArmorStand> blades, int tick) {
-        Location center = player.getLocation().clone().add(0, 0.9, 0);
-        double rotation = tick * 0.24;
-        double pulse = Math.sin(tick * 0.35) * 0.25;
-        double radius = 2.1 + pulse;
+    private void animateBlades(Player player, List<ArmorStand> blades, List<Vector> currentOffsets, List<Vector> targetOffsets) {
+        Vector forward = getHorizontalDirection(player);
+        Vector right = new Vector(-forward.getZ(), 0, forward.getX()).normalize();
 
         for (int i = 0; i < blades.size(); i++) {
             ArmorStand blade = blades.get(i);
 
             if (!blade.isValid()) continue;
 
-            double angle = rotation + ((Math.PI * 2.0 * i) / blades.size());
-            double x = Math.cos(angle) * radius;
-            double z = Math.sin(angle) * radius;
-            double y = Math.sin((tick * 0.22) + i) * 0.45;
+            Vector current = currentOffsets.get(i);
+            Vector target = targetOffsets.get(i);
+            Vector movement = target.clone().subtract(current);
 
-            Location location = center.clone().add(x, y, z);
+            current.add(movement.clone().multiply(0.45));
 
-            location.setYaw((float) Math.toDegrees(-angle));
-            location.setPitch(0);
+            Location location = getBladeLocation(player, current);
+
+            Vector worldMovement = right.clone().multiply(movement.getX());
+            worldMovement.add(forward.clone().multiply(movement.getZ()));
+            worldMovement.setY(movement.getY());
+
+            if (worldMovement.lengthSquared() > 0.001) location.setDirection(worldMovement.normalize());
 
             blade.teleport(location);
+            blade.setCustomName(null);
+            blade.setCustomNameVisible(false);
 
             createBladeTrail(location);
         }
     }
 
-    private void performStrike(Player player, int strike) {
-        double angle = Math.toRadians(player.getLocation().getYaw()) + (strike * 1.15);
+    private Vector randomBladeOffset() {
+        double side = -2.4 + (random.nextDouble() * 4.8);
+        double height = -0.35 + (random.nextDouble() * 1.9);
+        double forward = 2.5 + (random.nextDouble() * 2.5);
 
-        playSlashArc(player, angle, false);
+        return new Vector(side, height, forward);
+    }
+
+    private Location getBladeLocation(Player player, Vector offset) {
+        Vector forward = getHorizontalDirection(player);
+        Vector right = new Vector(-forward.getZ(), 0, forward.getX()).normalize();
+
+        Location location = player.getLocation().clone().add(0, 1.0, 0);
+
+        location.add(right.multiply(offset.getX()));
+        location.add(0, offset.getY(), 0);
+        location.add(forward.multiply(offset.getZ()));
+
+        return location;
+    }
+
+    private void randomizeBladePose(ArmorStand blade) {
+        double armX = Math.toRadians(235 + random.nextInt(90));
+        double armY = Math.toRadians(-35 + random.nextInt(71));
+        double armZ = Math.toRadians(-60 + random.nextInt(121));
+
+        blade.setRightArmPose(new EulerAngle(armX, armY, armZ));
+    }
+
+    private void performStrike(Player player, int strike) {
+        double slashAngle = Math.toRadians(-65 + (random.nextDouble() * 130.0));
+
+        playSlash(player, slashAngle, false);
         damageTargets(player, false);
 
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.15f, 0.85f + (strike * 0.08f));
@@ -171,36 +233,44 @@ public class GoblinSlayerAbility {
     }
 
     private void performFinalStrike(Player player) {
-        Location center = player.getLocation().clone().add(0, 1.0, 0);
-        double baseAngle = Math.toRadians(player.getLocation().getYaw());
+        double slashAngle = Math.toRadians(-45 + (random.nextDouble() * 90.0));
+        Location center = getFrontEffectCenter(player, 3.0, 1.2);
 
-        playSlashArc(player, baseAngle + Math.toRadians(45), true);
-        playSlashArc(player, baseAngle - Math.toRadians(45), true);
+        playSlash(player, slashAngle, true);
+        playSlash(player, slashAngle + Math.toRadians(90), true);
 
         damageTargets(player, true);
 
         player.getWorld().spawnParticle(Particle.EXPLOSION, center, 2, 0.5, 0.4, 0.5, 0);
-        player.getWorld().spawnParticle(Particle.DUST, center, 45, 1.8, 1.0, 1.8, 0.05, GREEN_DUST);
-        player.getWorld().spawnParticle(Particle.CRIT, center, 35, 1.5, 0.8, 1.5, 0.15);
+        player.getWorld().spawnParticle(Particle.DUST, center, 45, 1.4, 1.0, 1.4, 0.05, GREEN_DUST);
+        player.getWorld().spawnParticle(Particle.CRIT, center, 35, 1.3, 0.8, 1.3, 0.15);
 
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.5f, 0.55f);
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_ATTACK, 1.1f, 1.45f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 0.8f, 1.25f);
     }
 
-    private void playSlashArc(Player player, double baseAngle, boolean finalStrike) {
-        Location center = player.getLocation().clone().add(0, 1.0, 0);
-        double radius = finalStrike ? 4.2 : 3.2;
-        int points = finalStrike ? 22 : 15;
+    private void playSlash(Player player, double slashAngle, boolean finalStrike) {
+        Vector forward = getHorizontalDirection(player);
+        Vector right = new Vector(-forward.getZ(), 0, forward.getX()).normalize();
+
+        Location center = getFrontEffectCenter(player, finalStrike ? 3.2 : 2.8, finalStrike ? 1.4 : 1.2);
+
+        double halfLength = finalStrike ? 2.8 : 2.1;
+        int points = finalStrike ? 24 : 17;
 
         for (int i = 0; i < points; i++) {
             double progress = i / (double) (points - 1);
-            double angle = baseAngle - 0.95 + (progress * 1.90);
-            double x = Math.cos(angle) * radius;
-            double z = Math.sin(angle) * radius;
-            double y = Math.sin(progress * Math.PI) * (finalStrike ? 1.2 : 0.8);
+            double line = (progress * 2.0) - 1.0;
+            double side = Math.cos(slashAngle) * line * halfLength;
+            double height = Math.sin(slashAngle) * line * halfLength;
+            double depth = Math.sin(progress * Math.PI) * 0.45;
 
-            Location point = center.clone().add(x, y, z);
+            Location point = center.clone();
+
+            point.add(right.clone().multiply(side));
+            point.add(0, height, 0);
+            point.add(forward.clone().multiply(depth));
 
             player.getWorld().spawnParticle(Particle.DUST, point, 2, 0.04, 0.04, 0.04, 0, BRIGHT_GREEN_DUST);
 
@@ -250,6 +320,8 @@ public class GoblinSlayerAbility {
     }
 
     private void dealAbilityDamage(Player player, LivingEntity target, double damage) {
+        target.setNoDamageTicks(0);
+
         target.getPersistentDataContainer().set(abilityDamageKey, PersistentDataType.BYTE, (byte) 1);
         target.damage(damage, player);
 
@@ -259,17 +331,19 @@ public class GoblinSlayerAbility {
     }
 
     private void createBladeTrail(Location location) {
-        location.getWorld().spawnParticle(Particle.DUST, location.clone().add(0, 0.8, 0), 2, 0.15, 0.25, 0.15, 0.01, GREEN_DUST);
+        Location center = location.clone().add(0, 0.8, 0);
 
-        if (Math.random() < 0.35) {
-            location.getWorld().spawnParticle(Particle.CRIT, location.clone().add(0, 0.8, 0), 1, 0.1, 0.15, 0.1, 0.02);
+        location.getWorld().spawnParticle(Particle.DUST, center, 2, 0.15, 0.25, 0.15, 0.01, GREEN_DUST);
+
+        if (random.nextDouble() < 0.35) {
+            location.getWorld().spawnParticle(Particle.CRIT, center, 1, 0.1, 0.15, 0.1, 0.02);
         }
     }
 
     private void playActivation(Player player) {
-        Location center = player.getLocation().clone().add(0, 1.0, 0);
+        Location center = getFrontEffectCenter(player, 2.5, 1.0);
 
-        createActivationRing(player.getLocation());
+        createActivationRing(player);
 
         player.getWorld().spawnParticle(Particle.DUST, center, 30, 1.3, 0.8, 1.3, 0.05, GREEN_DUST);
         player.getWorld().spawnParticle(Particle.CRIT, center, 20, 1.0, 0.7, 1.0, 0.10);
@@ -278,18 +352,40 @@ public class GoblinSlayerAbility {
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.1f, 0.6f);
     }
 
-    private void createActivationRing(Location center) {
-        for (int i = 0; i < 32; i++) {
-            double angle = (Math.PI * 2.0 * i) / 32.0;
-            double x = Math.cos(angle) * 2.2;
-            double z = Math.sin(angle) * 2.2;
+    private void createActivationRing(Player player) {
+        Vector forward = getHorizontalDirection(player);
+        Vector right = new Vector(-forward.getZ(), 0, forward.getX()).normalize();
+        Location center = getFrontEffectCenter(player, 2.5, 0.3);
 
-            Location point = center.clone().add(x, 0.15, z);
+        for (int i = 0; i < 28; i++) {
+            double angle = (Math.PI * 2.0 * i) / 28.0;
+            double side = Math.cos(angle) * 1.8;
+            double height = Math.sin(angle) * 1.8;
+
+            Location point = center.clone();
+
+            point.add(right.clone().multiply(side));
+            point.add(0, height, 0);
 
             center.getWorld().spawnParticle(Particle.DUST, point, 1, 0, 0, 0, 0, GREEN_DUST);
 
             if (i % 4 == 0) center.getWorld().spawnParticle(Particle.CRIT, point, 1, 0.05, 0.05, 0.05, 0);
         }
+    }
+
+    private Location getFrontEffectCenter(Player player, double forwardDistance, double height) {
+        Vector forward = getHorizontalDirection(player);
+
+        return player.getLocation().clone().add(0, height, 0).add(forward.multiply(forwardDistance));
+    }
+
+    private Vector getHorizontalDirection(Player player) {
+        Vector direction = player.getLocation().getDirection().clone();
+        direction.setY(0);
+
+        if (direction.lengthSquared() <= 0) direction = new Vector(0, 0, 1);
+
+        return direction.normalize();
     }
 
     private void dissolveBlades(Player player, List<ArmorStand> blades) {

@@ -69,12 +69,26 @@ public enum SpecialArmorSet {
             "&2&lGOBLIN SLAYER ARMOR",
             "&a",
             "Blade Frenzy",
-            75.0,
+            150.0,
             6.0,
             25,
             stats(ArmorStat.DAMAGE, 10.0),
             stats(ArmorStat.DAMAGE, 25.0),
             stats(ArmorStat.DAMAGE, 50.0, ArmorStat.LOOT_FIND, 25.0)
+    ),
+
+    TIDECALLER(
+            "tidecaller",
+            "&3&lTidecaller",
+            "&3&lTIDECALLER ARMOR",
+            "&b",
+            "Riptide",
+            50.0,
+            3.0,
+            20,
+            stats(ArmorStat.MOVEMENT_SPEED, 5.0),
+            stats(ArmorStat.MOVEMENT_SPEED, 15.0),
+            stats(ArmorStat.MOVEMENT_SPEED, 30.0, ArmorStat.DAMAGE, 30.0)
     );
 
     private final String id;
