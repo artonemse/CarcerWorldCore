@@ -89,6 +89,20 @@ public enum SpecialArmorSet {
             stats(ArmorStat.MOVEMENT_SPEED, 5.0),
             stats(ArmorStat.MOVEMENT_SPEED, 15.0),
             stats(ArmorStat.MOVEMENT_SPEED, 30.0, ArmorStat.DAMAGE, 30.0)
+    ),
+
+    SANCTUM(
+            "sanctum",
+            "&e&lSanctum",
+            "&e&lSANCTUM ARMOR",
+            "&e",
+            "Sacred Domain",
+            25.0,
+            8.0,
+            30,
+            stats(ArmorStat.SOUL_REWARD, 10.0),
+            stats(ArmorStat.SOUL_REWARD, 25.0),
+            stats(ArmorStat.SOUL_REWARD, 50.0, ArmorStat.WEAPON_XP, 30.0)
     );
 
     private final String id;

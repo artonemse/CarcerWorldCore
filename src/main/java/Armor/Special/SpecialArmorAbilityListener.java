@@ -25,9 +25,10 @@ public class SpecialArmorAbilityListener implements Listener {
     private final RoyalGuardAbility royalGuardAbility;
     private final GoblinSlayerAbility goblinSlayerAbility;
     private final TidecallerAbility tidecallerAbility;
+    private final SanctumAbility sanctumAbility;
     private final Map<SpecialArmorSet, Map<UUID, Long>> cooldowns = new EnumMap<>(SpecialArmorSet.class);
 
-    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility, BlacktideAbility blacktideAbility, RoyalGuardAbility royalGuardAbility, GoblinSlayerAbility goblinSlayerAbility, TidecallerAbility tidecallerAbility) {
+    public SpecialArmorAbilityListener(CarcerWorldCore plugin, SpecialArmorManager specialArmorManager, BlackthornAbility blackthornAbility, GravebornAbility gravebornAbility, BlacktideAbility blacktideAbility, RoyalGuardAbility royalGuardAbility, GoblinSlayerAbility goblinSlayerAbility, TidecallerAbility tidecallerAbility, SanctumAbility sanctumAbility) {
         this.plugin = plugin;
         this.specialArmorManager = specialArmorManager;
         this.blackthornAbility = blackthornAbility;
@@ -36,6 +37,7 @@ public class SpecialArmorAbilityListener implements Listener {
         this.royalGuardAbility = royalGuardAbility;
         this.goblinSlayerAbility = goblinSlayerAbility;
         this.tidecallerAbility = tidecallerAbility;
+        this.sanctumAbility = sanctumAbility;
 
         for (SpecialArmorSet set : SpecialArmorSet.values()) cooldowns.put(set, new HashMap<>());
     }
@@ -82,6 +84,7 @@ public class SpecialArmorAbilityListener implements Listener {
             case ROYAL_GUARD -> royalGuardAbility.cast(player);
             case GOBLIN_SLAYER -> goblinSlayerAbility.cast(player);
             case TIDECALLER -> tidecallerAbility.cast(player);
+            case SANCTUM -> sanctumAbility.cast(player);
         }
     }
 

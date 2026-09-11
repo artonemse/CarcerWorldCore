@@ -141,6 +141,7 @@ public final class CarcerWorldCore extends JavaPlugin {
     private RoyalGuardAbility royalGuardAbility;
     private GoblinSlayerAbility goblinSlayerAbility;
     private TidecallerAbility tidecallerAbility;
+    private SanctumAbility sanctumAbility;
 
 
 
@@ -299,12 +300,13 @@ public final class CarcerWorldCore extends JavaPlugin {
         royalGuardAbility = new RoyalGuardAbility(this);
         goblinSlayerAbility = new GoblinSlayerAbility(this);
         tidecallerAbility = new TidecallerAbility(this);
+        sanctumAbility = new SanctumAbility(this);
 
         combatHealthBarManager = new CombatHealthBarManager(this);
         getServer().getPluginManager().registerEvents(new ArmorListener(this, armorManager, genericArmorGenerator, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorCombatListener(armorManager, combatHealthBarManager), this);
         getServer().getPluginManager().registerEvents(new ArmorDropListener(this, armorManager, genericArmorGenerator), this);
-        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility, goblinSlayerAbility, tidecallerAbility), this);
+        getServer().getPluginManager().registerEvents(new SpecialArmorAbilityListener(this, specialArmorManager, blackthornAbility, gravebornAbility, blacktideAbility, royalGuardAbility, goblinSlayerAbility, tidecallerAbility, sanctumAbility), this);
         getServer().getPluginManager().registerEvents(new SpecialArmorDamageListener(this), this);
         getServer().getPluginManager().registerEvents(tidecallerAbility, this);
 
@@ -341,6 +343,7 @@ public final class CarcerWorldCore extends JavaPlugin {
         if (royalGuardAbility != null) royalGuardAbility.shutdown();
         if (goblinSlayerAbility != null) goblinSlayerAbility.shutdown();
         if (tidecallerAbility != null) tidecallerAbility.shutdown();
+        if (sanctumAbility != null) sanctumAbility.shutdown();
 
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }

@@ -37,9 +37,13 @@ public class SpecialArmorGenerator {
         if (meta == null) return item;
 
         if (meta instanceof ArmorMeta armorMeta) {
+            if (set == SpecialArmorSet.BLACKTHORN) armorMeta.setTrim(new ArmorTrim(TrimMaterial.EMERALD, TrimPattern.WILD));
+            if (set == SpecialArmorSet.GRAVEBORN) armorMeta.setTrim(new ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.SILENCE));
+            if (set == SpecialArmorSet.BLACKTIDE) armorMeta.setTrim(new ArmorTrim(TrimMaterial.LAPIS, TrimPattern.COAST));
             if (set == SpecialArmorSet.ROYAL_GUARD) armorMeta.setTrim(new ArmorTrim(TrimMaterial.GOLD, TrimPattern.SPIRE));
             if (set == SpecialArmorSet.GOBLIN_SLAYER) armorMeta.setTrim(new ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.RIB));
             if (set == SpecialArmorSet.TIDECALLER) armorMeta.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.TIDE));
+            if (set == SpecialArmorSet.SANCTUM) armorMeta.setTrim(new ArmorTrim(TrimMaterial.QUARTZ, TrimPattern.WARD));
         }
 
         meta.setDisplayName(color(set.getDisplayName() + " " + slot.getDisplayName()));
@@ -71,7 +75,7 @@ public class SpecialArmorGenerator {
         meta.setLore(lore);
         meta.setUnbreakable(true);
         meta.addEnchant(Enchantment.UNBREAKING, 10, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ARMOR_TRIM);
 
         meta.getPersistentDataContainer().set(specialArmorKey, PersistentDataType.BYTE, (byte) 1);
         meta.getPersistentDataContainer().set(setKey, PersistentDataType.STRING, set.getId());
@@ -84,7 +88,6 @@ public class SpecialArmorGenerator {
 
     private void addAbilityLore(List<String> lore, SpecialArmorSet set) {
         lore.add(color(set.getAccentColor() + "&lMAGIC ABILITY - " + set.getAbilityName()));
-       // lore.add(color("&7&l| &f" + set.getAbilityName()));
 
         switch (set) {
             case BLACKTHORN -> {
@@ -116,7 +119,7 @@ public class SpecialArmorGenerator {
                 lore.add(color("&6&lGuardian of Judgment"));
                 lore.add(color("&7&l| &fSlam Damage: &e25"));
                 lore.add(color("&7&l| &fSlam Radius: &e7 Blocks"));
-                lore.add(color(""));
+                lore.add("");
                 lore.add(color("&e&lGuardian of Restoration"));
                 lore.add(color("&7&l| &fHealing: &e60% Maximum Health"));
                 lore.add(color("&7&l| &fResistance I: &e60 Seconds"));
@@ -124,7 +127,6 @@ public class SpecialArmorGenerator {
             }
 
             case GOBLIN_SLAYER -> {
-               // lore.add(color("&2&lBlade Frenzy"));
                 lore.add(color("&7&l| &fStrikes: &a5"));
                 lore.add(color("&7&l| &fDamage Per Strike: &a30"));
                 lore.add(color("&7&l| &fTargets: &aUp to 10"));
@@ -133,11 +135,20 @@ public class SpecialArmorGenerator {
             }
 
             case TIDECALLER -> {
-                //lore.add(color("&3&lRiptide"));
                 lore.add(color("&7&l| &fDash Distance: &b~10 Blocks"));
                 lore.add(color("&7&l| &fDamage: &b50"));
                 lore.add(color("&7&l| &fKnockback: &bTidal Launch"));
                 lore.add(color("&7&l| &fCooldown: &b20 Seconds"));
+            }
+
+            case SANCTUM -> {
+                lore.add(color("&7&l| &fDuration: &e8 Seconds"));
+                lore.add(color("&7&l| &fPulse Damage: &e25"));
+                lore.add(color("&7&l| &fPulse Interval: &e2 Seconds"));
+                lore.add(color("&7&l| &fRadius: &e8 Blocks"));
+                lore.add(color("&7&l| &fDomain Soul Bonus: &e+50%"));
+                lore.add(color("&7&l| &fDomain Weapon XP: &e+50%"));
+                lore.add(color("&7&l| &fCooldown: &e30 Seconds"));
             }
         }
     }
