@@ -6,20 +6,21 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
-
+import com.ticxo.modelengine.api.ModelEngineAPI;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NightMobSpawner {
 
     private final JavaPlugin plugin;
 
-    private static final int SPAWN_INTERVAL = 100; // 5 seconds
+    private static final int SPAWN_INTERVAL = 100;
     private static final int MAX_MOBS = 25;
     private static final int MOB_CHECK_RADIUS = 50;
 
@@ -27,6 +28,8 @@ public class NightMobSpawner {
     private static final int MAX_DISTANCE = 35;
 
     private static final int UNDERGROUND_TOLERANCE = 5;
+
+    private static final String SPIDER_MODEL = "whip-spider";
 
     public NightMobSpawner(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -37,8 +40,9 @@ public class NightMobSpawner {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Player player : Bukkit.getOnlinePlayers())
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     trySpawnNearPlayer(player);
+                }
             }
         }.runTaskTimer(plugin, 60L, SPAWN_INTERVAL);
     }
@@ -56,6 +60,7 @@ public class NightMobSpawner {
         if (nearbyMobs >= MAX_MOBS) return;
 
         Location spawnLocation = findSpawnLocation(player);
+
         if (spawnLocation == null) return;
         if (carcer.getNamedLocationManager().isSafeZone(spawnLocation)) return;
 
@@ -64,6 +69,8 @@ public class NightMobSpawner {
         if (mobType == null) return;
 
         LivingEntity mob = (LivingEntity) world.spawnEntity(spawnLocation, mobType.getEntityType());
+
+        applyCustomModel(mob);
 
         AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
 
@@ -78,9 +85,22 @@ public class NightMobSpawner {
         carcer.getMobSoulRewardManager().registerMob(mob, mobType);
     }
 
+    private void applyCustomModel(LivingEntity mob) {
+        if (mob.getType() != EntityType.SPIDER) return;
+
+        try {
+            var modeledEntity = ModelEngineAPI.getOrCreateModeledEntity(mob);
+            var activeModel = ModelEngineAPI.createActiveModel(SPIDER_MODEL);
+
+            modeledEntity.addModel(activeModel, true);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to apply ModelEngine model '" + SPIDER_MODEL + "' to spider.");
+            e.printStackTrace();
+        }
+    }
+
     private Location findSpawnLocation(Player player) {
-        if (isUnderground(player))
-            return findUndergroundSpawnLocation(player);
+        if (isUnderground(player)) return findUndergroundSpawnLocation(player);
 
         return findSurfaceSpawnLocation(player);
     }
@@ -89,53 +109,29 @@ public class NightMobSpawner {
         World world = player.getWorld();
         Location location = player.getLocation();
 
-        int surfaceY = world.getHighestBlockYAt(
-                location.getBlockX(),
-                location.getBlockZ(),
-                HeightMap.MOTION_BLOCKING_NO_LEAVES
-        );
+        int surfaceY = world.getHighestBlockYAt(location.getBlockX(), location.getBlockZ(), HeightMap.MOTION_BLOCKING_NO_LEAVES);
 
-        return location.getBlockY()
-                < surfaceY - UNDERGROUND_TOLERANCE;
+        return location.getBlockY() < surfaceY - UNDERGROUND_TOLERANCE;
     }
 
     private Location findSurfaceSpawnLocation(Player player) {
         World world = player.getWorld();
 
         for (int attempt = 0; attempt < 20; attempt++) {
-            Location randomLocation =
-                    getRandomHorizontalLocation(player);
+            Location randomLocation = getRandomHorizontalLocation(player);
 
             int x = randomLocation.getBlockX();
             int z = randomLocation.getBlockZ();
 
-            int groundY = world.getHighestBlockYAt(
-                    x,
-                    z,
-                    HeightMap.MOTION_BLOCKING_NO_LEAVES
-            );
+            int groundY = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
 
-            Block ground =
-                    world.getBlockAt(x, groundY, z);
+            Block ground = world.getBlockAt(x, groundY, z);
+            Block feet = world.getBlockAt(x, groundY + 1, z);
+            Block head = world.getBlockAt(x, groundY + 2, z);
 
-            Block feet =
-                    world.getBlockAt(x, groundY + 1, z);
+            if (!isValidSpawnPosition(ground, feet, head)) continue;
 
-            Block head =
-                    world.getBlockAt(x, groundY + 2, z);
-
-            if (!isValidSpawnPosition(
-                    ground,
-                    feet,
-                    head
-            )) continue;
-
-            return new Location(
-                    world,
-                    x + 0.5,
-                    groundY + 1,
-                    z + 0.5
-            );
+            return new Location(world, x + 0.5, groundY + 1, z + 0.5);
         }
 
         return null;
@@ -143,13 +139,10 @@ public class NightMobSpawner {
 
     private Location findUndergroundSpawnLocation(Player player) {
         World world = player.getWorld();
-
-        int playerY =
-                player.getLocation().getBlockY();
+        int playerY = player.getLocation().getBlockY();
 
         for (int attempt = 0; attempt < 20; attempt++) {
-            Location randomLocation =
-                    getRandomHorizontalLocation(player);
+            Location randomLocation = getRandomHorizontalLocation(player);
 
             int x = randomLocation.getBlockX();
             int z = randomLocation.getBlockZ();
@@ -157,33 +150,16 @@ public class NightMobSpawner {
             for (int offset = 8; offset >= -12; offset--) {
                 int groundY = playerY + offset;
 
-                if (groundY <= world.getMinHeight())
-                    continue;
+                if (groundY <= world.getMinHeight()) continue;
+                if (groundY + 2 >= world.getMaxHeight()) continue;
 
-                if (groundY + 2 >= world.getMaxHeight())
-                    continue;
+                Block ground = world.getBlockAt(x, groundY, z);
+                Block feet = world.getBlockAt(x, groundY + 1, z);
+                Block head = world.getBlockAt(x, groundY + 2, z);
 
-                Block ground =
-                        world.getBlockAt(x, groundY, z);
+                if (!isValidSpawnPosition(ground, feet, head)) continue;
 
-                Block feet =
-                        world.getBlockAt(x, groundY + 1, z);
-
-                Block head =
-                        world.getBlockAt(x, groundY + 2, z);
-
-                if (!isValidSpawnPosition(
-                        ground,
-                        feet,
-                        head
-                )) continue;
-
-                return new Location(
-                        world,
-                        x + 0.5,
-                        groundY + 1,
-                        z + 0.5
-                );
+                return new Location(world, x + 0.5, groundY + 1, z + 0.5);
             }
         }
 
@@ -191,43 +167,19 @@ public class NightMobSpawner {
     }
 
     private Location getRandomHorizontalLocation(Player player) {
-        double angle =
-                ThreadLocalRandom.current()
-                        .nextDouble(0, Math.PI * 2);
+        double angle = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2);
+        double distance = ThreadLocalRandom.current().nextDouble(MIN_DISTANCE, MAX_DISTANCE);
 
-        double distance =
-                ThreadLocalRandom.current()
-                        .nextDouble(
-                                MIN_DISTANCE,
-                                MAX_DISTANCE
-                        );
+        double x = player.getLocation().getX() + Math.cos(angle) * distance;
+        double z = player.getLocation().getZ() + Math.sin(angle) * distance;
 
-        double x =
-                player.getLocation().getX()
-                        + Math.cos(angle) * distance;
-
-        double z =
-                player.getLocation().getZ()
-                        + Math.sin(angle) * distance;
-
-        return new Location(
-                player.getWorld(),
-                x,
-                player.getLocation().getY(),
-                z
-        );
+        return new Location(player.getWorld(), x, player.getLocation().getY(), z);
     }
 
-    private boolean isValidSpawnPosition(
-            Block ground,
-            Block feet,
-            Block head
-    ) {
+    private boolean isValidSpawnPosition(Block ground, Block feet, Block head) {
         if (!isValidGround(ground)) return false;
-
         if (!feet.isPassable()) return false;
         if (!head.isPassable()) return false;
-
         if (isLiquid(feet)) return false;
         if (isLiquid(head)) return false;
 
@@ -265,9 +217,9 @@ public class NightMobSpawner {
     private boolean isLiquid(Block block) {
         if (block.isLiquid()) return true;
 
-        if (block.getBlockData()
-                instanceof Waterlogged waterlogged)
+        if (block.getBlockData() instanceof Waterlogged waterlogged) {
             return waterlogged.isWaterlogged();
+        }
 
         return false;
     }
@@ -275,7 +227,6 @@ public class NightMobSpawner {
     private boolean isNight(World world) {
         long time = world.getTime();
 
-        return time >= 13000
-                && time <= 23000;
+        return time >= 13000 && time <= 23000;
     }
 }
