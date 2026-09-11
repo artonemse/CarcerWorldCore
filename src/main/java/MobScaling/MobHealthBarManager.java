@@ -14,15 +14,18 @@ public class MobHealthBarManager {
 
     private final CarcerWorldCore plugin;
     private final NamespacedKey mobNameKey;
+    private final NamespacedKey bossIgnoreKey;
 
     public MobHealthBarManager(CarcerWorldCore plugin) {
         this.plugin = plugin;
         this.mobNameKey = new NamespacedKey(plugin, "mob_name");
+        this.bossIgnoreKey = new NamespacedKey(plugin, "boss_ignore_standard_mob_systems");
     }
 
     public void updateHealthBar(LivingEntity mob) {
         if (mob instanceof Player) return;
         if (mob instanceof ArmorStand) return;
+        if (mob.getPersistentDataContainer().has(bossIgnoreKey, PersistentDataType.BYTE)) return;
 
         AttributeInstance maxHealthAttribute = mob.getAttribute(Attribute.MAX_HEALTH);
 

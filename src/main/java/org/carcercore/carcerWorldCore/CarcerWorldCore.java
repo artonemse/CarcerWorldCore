@@ -61,11 +61,16 @@ import Quests.QuestGUIListener;
 import Quests.QuestLocationListener;
 import Quests.QuestPlayerListener;
 import Quests.QuestsCommand;
+import Bosses.BossCommand;
+import Bosses.BossListener;
+import Bosses.BossManager;
 
 public final class CarcerWorldCore extends JavaPlugin {
 
     private static CarcerWorldCore instance;
     private WarpManager warpManager;
+
+    private BossManager bossManager;
 
 
     private WeaponSkinManager weaponSkinManager;
@@ -147,6 +152,8 @@ public final class CarcerWorldCore extends JavaPlugin {
 
 
 
+
+
     @Override
     public void onEnable() {
         instance = this;
@@ -199,6 +206,21 @@ public final class CarcerWorldCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new QuestGUIListener(questGUI), this);
 
         getCommand("quests").setExecutor(new QuestsCommand(questGUI));
+
+        // ================================
+        // BOSS SYSTEM
+        // ================================
+        bossManager = new BossManager(this);
+
+        getServer().getPluginManager().registerEvents(new BossListener(this, bossManager), this);
+
+        BossCommand bossCommand = new BossCommand(bossManager);
+        getCommand("boss").setExecutor(bossCommand);
+        getCommand("boss").setTabCompleter(bossCommand);
+
+        bossManager.start();
+
+
         // ================================
         // SKILLS
         // ================================
@@ -345,6 +367,8 @@ public final class CarcerWorldCore extends JavaPlugin {
         if (tidecallerAbility != null) tidecallerAbility.shutdown();
         if (sanctumAbility != null) sanctumAbility.shutdown();
 
+        if (bossManager != null) bossManager.shutdown();
+
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }
 
@@ -380,6 +404,10 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     public SpecialArmorManager getSpecialArmorManager() {
         return specialArmorManager;
+    }
+
+    public BossManager getBossManager() {
+        return bossManager;
     }
 
     // ================================

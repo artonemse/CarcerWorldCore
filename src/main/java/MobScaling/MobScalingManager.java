@@ -20,11 +20,13 @@ public class MobScalingManager {
     private final CarcerWorldCore plugin;
     private final NamespacedKey scaledKey;
     private final NamespacedKey scalingLevelKey;
+    private final NamespacedKey bossIgnoreKey;
 
     public MobScalingManager(CarcerWorldCore plugin) {
         this.plugin = plugin;
         this.scaledKey = new NamespacedKey(plugin, "mob_scaled");
         this.scalingLevelKey = new NamespacedKey(plugin, "mob_scaling_level");
+        this.bossIgnoreKey = new NamespacedKey(plugin, "boss_ignore_standard_mob_systems");
     }
 
     public void start() {
@@ -34,6 +36,7 @@ public class MobScalingManager {
                     if (!(entity instanceof LivingEntity mob)) continue;
                     if (mob instanceof Player) continue;
                     if (mob instanceof ArmorStand) continue;
+                    if (shouldIgnore(mob)) continue;
                     if (isScaled(mob)) continue;
 
                     Player nearbyPlayer = getHighestLevelNearbyPlayer(mob);
@@ -48,6 +51,7 @@ public class MobScalingManager {
 
     public void scaleMob(LivingEntity mob, Player player) {
         if (mob instanceof ArmorStand) return;
+        if (shouldIgnore(mob)) return;
         if (isScaled(mob)) return;
 
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
@@ -89,6 +93,10 @@ public class MobScalingManager {
         }
 
         return highestPlayer;
+    }
+
+    private boolean shouldIgnore(LivingEntity mob) {
+        return mob.getPersistentDataContainer().has(bossIgnoreKey, PersistentDataType.BYTE);
     }
 
     public double getHealthMultiplier(int weaponLevel) {

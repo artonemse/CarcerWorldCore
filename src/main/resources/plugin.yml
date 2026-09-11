@@ -36,3 +36,7 @@ commands:
   weaponskin:
     aliases: [giveskin]
     permission: carcer.admin
+  boss:
+    description: Manage regional boss encounters.
+    usage: /boss
+    permission: carcer.admin
