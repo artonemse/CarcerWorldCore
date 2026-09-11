@@ -43,6 +43,7 @@ public class MobZoneManager {
         config.set("mobs.wandering_dead.entity", "ZOMBIE");
         config.set("mobs.wandering_dead.name", "&2Wandering Dead");
         config.set("mobs.wandering_dead.health", 20);
+        config.set("mobs.wandering_dead.model", "wandering_dead");
 
         config.set("mobs.forsaken_archer.entity", "SKELETON");
         config.set("mobs.forsaken_archer.name", "&7Forsaken Archer");
@@ -117,6 +118,9 @@ public class MobZoneManager {
             String entityName = config.getString(path + ".entity");
             String name = config.getString(path + ".name", id);
             double health = config.getDouble(path + ".health", 20.0);
+            String modelId = config.getString(path + ".model");
+
+            if (modelId == null && id.equalsIgnoreCase("wandering_dead")) modelId = "wandering_dead";
 
             if (entityName == null) {
                 plugin.getLogger().warning("Mob " + id + " has no entity type.");
@@ -150,7 +154,7 @@ public class MobZoneManager {
 
             mobTypes.put(
                     id,
-                    new MobType(id, entityType, name, health)
+                    new MobType(id, entityType, name, health, modelId)
             );
         }
     }

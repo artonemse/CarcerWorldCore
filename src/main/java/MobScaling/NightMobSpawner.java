@@ -6,7 +6,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -28,8 +27,6 @@ public class NightMobSpawner {
     private static final int MAX_DISTANCE = 35;
 
     private static final int UNDERGROUND_TOLERANCE = 5;
-
-    private static final String SPIDER_MODEL = "whip-spider";
 
     public NightMobSpawner(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -70,7 +67,7 @@ public class NightMobSpawner {
 
         LivingEntity mob = (LivingEntity) world.spawnEntity(spawnLocation, mobType.getEntityType());
 
-        applyCustomModel(mob);
+        applyCustomModel(mob, mobType);
 
         AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
 
@@ -85,16 +82,16 @@ public class NightMobSpawner {
         carcer.getMobSoulRewardManager().registerMob(mob, mobType);
     }
 
-    private void applyCustomModel(LivingEntity mob) {
-        if (mob.getType() != EntityType.SPIDER) return;
+    private void applyCustomModel(LivingEntity mob, MobType mobType) {
+        if (!mobType.hasModel()) return;
 
         try {
             var modeledEntity = ModelEngineAPI.getOrCreateModeledEntity(mob);
-            var activeModel = ModelEngineAPI.createActiveModel(SPIDER_MODEL);
+            var activeModel = ModelEngineAPI.createActiveModel(mobType.getModelId());
 
             modeledEntity.addModel(activeModel, true);
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to apply ModelEngine model '" + SPIDER_MODEL + "' to spider.");
+            plugin.getLogger().warning("Failed to apply ModelEngine model '" + mobType.getModelId() + "' to mob '" + mobType.getId() + "'.");
             e.printStackTrace();
         }
     }
