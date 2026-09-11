@@ -1,0 +1,9 @@
+resource-pack:
+  required: true
+  prompt: "CarcerWorld requires its custom resource pack."
+
+github:
+  owner: "artonemse"
+  repository: "CarcerWorldCore"
+  release-tag: "resourcepack"
+  token: ""

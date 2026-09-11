@@ -48,6 +48,7 @@ import Skills.SkillManager;
 import Skills.SkillsGUI;
 import Skills.SkillsGUIListener;
 import Warps.WarpManager;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import Weapons.*;
@@ -64,6 +65,9 @@ import Quests.QuestsCommand;
 import Bosses.BossCommand;
 import Bosses.BossListener;
 import Bosses.BossManager;
+import ResourcePack.ResourcePackCommand;
+import ResourcePack.ResourcePackListener;
+import ResourcePack.ResourcePackManager;
 
 public final class CarcerWorldCore extends JavaPlugin {
 
@@ -72,6 +76,7 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     private BossManager bossManager;
 
+    private ResourcePackManager resourcePackManager;
 
     private WeaponSkinManager weaponSkinManager;
     private WeaponSkinGUI weaponSkinGUI;
@@ -157,6 +162,19 @@ public final class CarcerWorldCore extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        saveDefaultConfig();
+
+        // ================================
+        // RESOURCE PACK
+        // ================================
+        resourcePackManager = new ResourcePackManager(this);
+
+        ResourcePackCommand resourcePackCommand = new ResourcePackCommand(this, resourcePackManager);
+        getCommand("carcerpack").setExecutor(resourcePackCommand);
+        getCommand("carcerpack").setTabCompleter(resourcePackCommand);
+
+        getServer().getPluginManager().registerEvents(new ResourcePackListener(this, resourcePackManager), this);
 
         // ================================
         // NPC SYSTEM
@@ -369,10 +387,14 @@ public final class CarcerWorldCore extends JavaPlugin {
 
         if (bossManager != null) bossManager.shutdown();
 
+
         getLogger().info("[CarcerWorldCore] has been disabled!");
     }
 
 
+    public ResourcePackManager getResourcePackManager() {
+        return resourcePackManager;
+    }
 
     public NPCManager getNPCManager() {
         return npcManager;

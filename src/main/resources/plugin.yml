@@ -40,3 +40,7 @@ commands:
     description: Manage regional boss encounters.
     usage: /boss
     permission: carcer.admin
+  carcerpack:
+    description: Manage the CarcerWorld resource pack.
+    usage: /carcerpack
+    permission: carcer.admin
