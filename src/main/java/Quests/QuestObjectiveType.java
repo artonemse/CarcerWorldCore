@@ -6,6 +6,7 @@ public enum QuestObjectiveType {
     KILL_UNIQUE_MOBS,
     VISIT_LOCATION,
     VISIT_UNIQUE_LOCATIONS,
+    TALK_TO_NPC,
 
     REACH_WEAPON_LEVEL,
     ENCHANT_WEAPON,

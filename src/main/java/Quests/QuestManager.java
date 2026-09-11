@@ -67,7 +67,9 @@ public class QuestManager {
 
     public PlayerQuest getPlayerQuest(Player player, String questId) {
         Map<String, PlayerQuest> playerMap = playerQuests.get(player.getUniqueId());
+
         if (playerMap == null) return null;
+
         return playerMap.get(questId.toLowerCase());
     }
 
@@ -81,10 +83,12 @@ public class QuestManager {
             if (playerQuest.getState() == QuestState.COMPLETED) continue;
 
             Quest quest = getQuest(playerQuest.getQuestId());
+
             if (quest != null) active.add(quest);
         }
 
         active.sort(Comparator.comparing(Quest::getType).thenComparing(Quest::getName));
+
         return active;
     }
 
@@ -111,6 +115,7 @@ public class QuestManager {
         if (prerequisite == null || prerequisite.isBlank()) return true;
 
         PlayerQuest prerequisiteQuest = getPlayerQuest(player, prerequisite);
+
         return prerequisiteQuest != null && prerequisiteQuest.getState() == QuestState.COMPLETED;
     }
 
@@ -150,12 +155,16 @@ public class QuestManager {
     }
 
     public boolean handleNPCInteraction(Player player, CarcerNPC npc) {
+        handleNPCObjectiveInteraction(player, npc);
+
         Quest readyQuest = findNPCQuest(player, npc, QuestState.READY_TO_TURN_IN);
 
         if (readyQuest != null) {
             PlayerQuest playerQuest = getPlayerQuest(player, readyQuest.getId());
+
             sendDialogue(player, readyQuest, readyQuest.getReadyDialogue(), playerQuest);
             completeQuest(player, readyQuest, playerQuest);
+
             return true;
         }
 
@@ -163,7 +172,9 @@ public class QuestManager {
 
         if (activeQuest != null) {
             PlayerQuest playerQuest = getPlayerQuest(player, activeQuest.getId());
+
             sendDialogue(player, activeQuest, activeQuest.getActiveDialogue(), playerQuest);
+
             return true;
         }
 
@@ -171,6 +182,7 @@ public class QuestManager {
 
         if (availableQuest != null) {
             activateQuest(player, availableQuest, true);
+
             return true;
         }
 
@@ -178,10 +190,44 @@ public class QuestManager {
 
         if (finishedQuest != null && !finishedQuest.getFinishedDialogue().isEmpty()) {
             sendDialogue(player, finishedQuest, finishedQuest.getFinishedDialogue(), getPlayerQuest(player, finishedQuest.getId()));
+
             return true;
         }
 
         return false;
+    }
+
+    private void handleNPCObjectiveInteraction(Player player, CarcerNPC npc) {
+        if (npc == null) return;
+
+        String npcId = npc.getId();
+
+        if (npcId == null || npcId.isBlank()) return;
+
+        ensureMainQuests(player);
+
+        for (Quest quest : getActiveQuests(player)) {
+            PlayerQuest playerQuest = getPlayerQuest(player, quest.getId());
+
+            if (playerQuest == null || playerQuest.getState() != QuestState.ACTIVE) continue;
+
+            boolean changed = false;
+
+            for (QuestObjective objective : quest.getObjectives()) {
+                if (objective.getType() != QuestObjectiveType.TALK_TO_NPC) continue;
+
+                PlayerQuestObjective progress = playerQuest.getObjective(objective.getId());
+
+                if (isObjectiveComplete(objective, progress)) continue;
+                if (!objective.getTarget().equalsIgnoreCase(npcId)) continue;
+
+                progress.addProgress(1);
+                clampProgress(objective, progress);
+                changed = true;
+            }
+
+            if (changed) handleQuestProgress(player, quest, playerQuest);
+        }
     }
 
     private Quest findNPCQuest(Player player, CarcerNPC npc, QuestState state) {
@@ -217,6 +263,7 @@ public class QuestManager {
 
         for (Quest quest : getActiveQuests(player)) {
             PlayerQuest playerQuest = getPlayerQuest(player, quest.getId());
+
             if (playerQuest == null || playerQuest.getState() != QuestState.ACTIVE) continue;
 
             boolean changed = false;
@@ -268,6 +315,7 @@ public class QuestManager {
 
         for (Quest quest : getActiveQuests(player)) {
             PlayerQuest playerQuest = getPlayerQuest(player, quest.getId());
+
             if (playerQuest == null || playerQuest.getState() != QuestState.ACTIVE) continue;
 
             boolean changed = false;
@@ -332,11 +380,13 @@ public class QuestManager {
             switch (objective.getType()) {
                 case REACH_WEAPON_LEVEL -> {
                     int level = plugin.getPlayerDataManager().getPlayerData(player).getWeaponLevel();
+
                     progress.setProgress(Math.min(level, objective.getEffectiveRequiredAmount()));
                 }
 
                 case REACH_ASCENSION -> {
                     int ascension = plugin.getPlayerDataManager().getPlayerData(player).getAscensions();
+
                     progress.setProgress(Math.min(ascension, objective.getEffectiveRequiredAmount()));
                 }
 
@@ -363,6 +413,7 @@ public class QuestManager {
 
         if (quest.getReward().hasSpecialArmorReward()) {
             String armorName = quest.getReward().getSpecialArmorSet().getDisplayName() + " " + quest.getReward().getSpecialArmorSlot().getDisplayName();
+
             player.sendMessage(color("&6&lREWARD &8» " + armorName));
         }
 
@@ -406,6 +457,7 @@ public class QuestManager {
 
     private void clampProgress(QuestObjective objective, PlayerQuestObjective progress) {
         int required = objective.getEffectiveRequiredAmount();
+
         if (progress.getProgress() > required) progress.setProgress(required);
     }
 
@@ -415,12 +467,14 @@ public class QuestManager {
         String mobId = getMobIdentifier(mob);
 
         if (mobId.equalsIgnoreCase(target)) return true;
+
         return mob.getType().name().equalsIgnoreCase(target);
     }
 
     private String getMobIdentifier(LivingEntity mob) {
         if (plugin.getMobSoulRewardManager() != null) {
             String mobId = plugin.getMobSoulRewardManager().getMobId(mob);
+
             if (mobId != null && !mobId.isBlank()) return mobId;
         }
 
@@ -430,12 +484,15 @@ public class QuestManager {
     private void sendObjectiveProgress(Player player, Quest quest, PlayerQuest playerQuest) {
         for (QuestObjective objective : quest.getObjectives()) {
             PlayerQuestObjective progress = playerQuest.getObjective(objective.getId());
+
             player.sendMessage(color("&7" + objective.getDescription() + ": &f" + format(progress.getProgress()) + "&7/&f" + format(objective.getEffectiveRequiredAmount())));
         }
     }
 
     private void sendDialogue(Player player, Quest quest, List<String> dialogue, PlayerQuest playerQuest) {
-        for (String line : dialogue) player.sendMessage(color(applyPlaceholders(line, quest, playerQuest)));
+        for (String line : dialogue) {
+            player.sendMessage(color(applyPlaceholders(line, quest, playerQuest)));
+        }
 
         if (!dialogue.isEmpty()) player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.7f, 1.0f);
     }
@@ -461,6 +518,7 @@ public class QuestManager {
 
         for (Quest quest : getActiveQuests(player)) {
             PlayerQuest playerQuest = getPlayerQuest(player, quest.getId());
+
             if (playerQuest == null || playerQuest.getState() != QuestState.ACTIVE) continue;
 
             boolean changed = false;
@@ -469,10 +527,12 @@ public class QuestManager {
                 if (objective.getType() != type) continue;
 
                 PlayerQuestObjective progress = playerQuest.getObjective(objective.getId());
+
                 if (isObjectiveComplete(objective, progress)) continue;
 
                 progress.addProgress(amount);
                 clampProgress(objective, progress);
+
                 changed = true;
             }
 
@@ -487,6 +547,7 @@ public class QuestManager {
 
         for (Quest quest : getActiveQuests(player)) {
             PlayerQuest playerQuest = getPlayerQuest(player, quest.getId());
+
             if (playerQuest == null || playerQuest.getState() != QuestState.ACTIVE) continue;
 
             boolean changed = false;
@@ -495,6 +556,7 @@ public class QuestManager {
                 if (objective.getType() != type) continue;
 
                 PlayerQuestObjective progress = playerQuest.getObjective(objective.getId());
+
                 if (isObjectiveComplete(objective, progress)) continue;
 
                 int newProgress = Math.min(value, objective.getEffectiveRequiredAmount());
@@ -511,6 +573,7 @@ public class QuestManager {
 
     public String getObjectiveProgressLine(Player player, Quest quest, QuestObjective objective) {
         PlayerQuest playerQuest = getPlayerQuest(player, quest.getId());
+
         if (playerQuest == null) return "";
 
         PlayerQuestObjective progress = playerQuest.getObjective(objective.getId());
@@ -522,6 +585,7 @@ public class QuestManager {
         playerQuests.clear();
 
         ConfigurationSection playersSection = config.getConfigurationSection("players");
+
         if (playersSection == null) return;
 
         for (String uuidString : playersSection.getKeys(false)) {
@@ -534,6 +598,7 @@ public class QuestManager {
             }
 
             ConfigurationSection questSection = config.getConfigurationSection("players." + uuidString + ".quests");
+
             if (questSection == null) continue;
 
             Map<String, PlayerQuest> loadedQuests = new HashMap<>();
@@ -566,6 +631,7 @@ public class QuestManager {
 
                     if (quest != null && !quest.getObjectives().isEmpty()) {
                         int oldProgress = config.getInt(path + ".progress", 0);
+
                         playerQuest.getObjective(quest.getObjectives().getFirst().getId()).setProgress(oldProgress);
                     }
                 }
@@ -605,15 +671,18 @@ public class QuestManager {
 
     public boolean startQuestAdmin(Player player, String questId) {
         Quest quest = getQuest(questId);
+
         if (quest == null) return false;
         if (getPlayerQuest(player, questId) != null) return false;
 
         activateQuest(player, quest, true);
+
         return true;
     }
 
     public boolean completeQuestAdmin(Player player, String questId) {
         Quest quest = getQuest(questId);
+
         if (quest == null) return false;
 
         PlayerQuest playerQuest = getPlayerQuest(player, questId);
@@ -628,6 +697,7 @@ public class QuestManager {
 
         for (QuestObjective objective : quest.getObjectives()) {
             PlayerQuestObjective progress = playerQuest.getObjective(objective.getId());
+
             progress.setProgress(objective.getEffectiveRequiredAmount());
 
             if (!objective.getTargets().isEmpty()) {
@@ -637,11 +707,13 @@ public class QuestManager {
         }
 
         completeQuest(player, quest, playerQuest);
+
         return true;
     }
 
     public boolean resetQuest(Player player, String questId) {
         Quest quest = getQuest(questId);
+
         if (quest == null) return false;
 
         Map<String, PlayerQuest> playerMap = playerQuests.get(player.getUniqueId());
@@ -657,13 +729,16 @@ public class QuestManager {
 
     public void resetAllQuests(Player player) {
         playerQuests.remove(player.getUniqueId());
+
         savePlayer(player.getUniqueId());
         ensureMainQuests(player);
     }
 
     public void clearAllQuestData() {
         playerQuests.clear();
+
         config.set("players", null);
+
         saveFile();
     }
 
@@ -671,7 +746,9 @@ public class QuestManager {
         quests.clear();
         quests.putAll(new QuestLoader(plugin).loadQuests());
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) ensureMainQuests(player);
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            ensureMainQuests(player);
+        }
     }
 
     public boolean questExists(String questId) {
@@ -679,7 +756,9 @@ public class QuestManager {
     }
 
     public void saveAll() {
-        for (UUID uuid : playerQuests.keySet()) savePlayer(uuid);
+        for (UUID uuid : playerQuests.keySet()) {
+            savePlayer(uuid);
+        }
     }
 
     private void saveFile() {

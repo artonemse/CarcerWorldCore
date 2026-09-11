@@ -3,7 +3,6 @@ package Bosses.Blackthorn;
 import Bosses.BossInstance;
 import Bosses.BossManager;
 import Bosses.BossType;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -12,7 +11,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Ravager;
+import org.bukkit.entity.Warden;
 import org.bukkit.persistence.PersistentDataType;
 import org.carcercore.carcerWorldCore.CarcerWorldCore;
 
@@ -38,21 +37,21 @@ public class ThornboundWarden extends BossInstance {
     protected LivingEntity spawnBoss() {
         Location spawn = center.clone().add(0, 0, 6);
 
-        Ravager ravager = spawn.getWorld().spawn(spawn, Ravager.class);
+        Warden warden = spawn.getWorld().spawn(spawn, Warden.class);
 
-        ravager.setCustomName(color("&2&lThe Thornbound Warden"));
-        ravager.setCustomNameVisible(true);
-        ravager.setPersistent(true);
-        ravager.setRemoveWhenFarAway(false);
-        ravager.setCanPickupItems(false);
+        warden.setCustomName(color("&2&lThe Thornbound Warden"));
+        warden.setCustomNameVisible(true);
+        warden.setPersistent(true);
+        warden.setRemoveWhenFarAway(false);
+        warden.setCanPickupItems(false);
 
-        setAttribute(ravager, Attribute.MAX_HEALTH, type.getMaxHealth());
-        setAttribute(ravager, Attribute.ATTACK_DAMAGE, 8.0);
-        setAttribute(ravager, Attribute.MOVEMENT_SPEED, 0.28);
-        setAttribute(ravager, Attribute.KNOCKBACK_RESISTANCE, 0.80);
-        setAttribute(ravager, Attribute.FOLLOW_RANGE, 45.0);
+        setAttribute(warden, Attribute.MAX_HEALTH, type.getMaxHealth());
+        setAttribute(warden, Attribute.ATTACK_DAMAGE, 8.0);
+        setAttribute(warden, Attribute.MOVEMENT_SPEED, 0.25);
+        setAttribute(warden, Attribute.KNOCKBACK_RESISTANCE, 0.90);
+        setAttribute(warden, Attribute.FOLLOW_RANGE, 45.0);
 
-        ravager.setHealth(type.getMaxHealth());
+        warden.setHealth(type.getMaxHealth());
 
         NamespacedKey bossKey = new NamespacedKey(plugin, "boss_entity");
         NamespacedKey bossTypeKey = new NamespacedKey(plugin, "boss_type");
@@ -60,17 +59,17 @@ public class ThornboundWarden extends BossInstance {
         NamespacedKey ignoreMobSystemsKey = new NamespacedKey(plugin, "boss_ignore_standard_mob_systems");
         NamespacedKey noRewardKey = new NamespacedKey(plugin, "boss_no_auto_rewards");
 
-        ravager.getPersistentDataContainer().set(bossKey, PersistentDataType.BYTE, (byte) 1);
-        ravager.getPersistentDataContainer().set(bossTypeKey, PersistentDataType.STRING, type.getId());
-        ravager.getPersistentDataContainer().set(mobTypeKey, PersistentDataType.STRING, type.getId());
-        ravager.getPersistentDataContainer().set(ignoreMobSystemsKey, PersistentDataType.BYTE, (byte) 1);
-        ravager.getPersistentDataContainer().set(noRewardKey, PersistentDataType.BYTE, (byte) 1);
+        warden.getPersistentDataContainer().set(bossKey, PersistentDataType.BYTE, (byte) 1);
+        warden.getPersistentDataContainer().set(bossTypeKey, PersistentDataType.STRING, type.getId());
+        warden.getPersistentDataContainer().set(mobTypeKey, PersistentDataType.STRING, type.getId());
+        warden.getPersistentDataContainer().set(ignoreMobSystemsKey, PersistentDataType.BYTE, (byte) 1);
+        warden.getPersistentDataContainer().set(noRewardKey, PersistentDataType.BYTE, (byte) 1);
 
         Player owner = getOwner();
 
-        if (owner != null) ravager.setTarget(owner);
+        if (owner != null) warden.setAnger(owner, 150);
 
-        return ravager;
+        return warden;
     }
 
     @Override
@@ -84,9 +83,14 @@ public class ThornboundWarden extends BossInstance {
         owner.sendMessage(color("&7&l| &fThe guardian of the corrupted grove awakens."));
         owner.sendMessage("");
 
-        owner.playSound(owner.getLocation(), Sound.ENTITY_RAVAGER_ROAR, 1.4f, 0.65f);
+        owner.playSound(owner.getLocation(), Sound.ENTITY_WARDEN_ROAR, 1.4f, 0.65f);
+        owner.playSound(owner.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 0.75f);
 
-        center.getWorld().spawnParticle(Particle.COMPOSTER, bossEntity.getLocation().clone().add(0, 1, 0), 80, 2.0, 1.3, 2.0, 0.12);
+        Location location = bossEntity.getLocation().clone().add(0, 1, 0);
+
+        center.getWorld().spawnParticle(Particle.SCULK_SOUL, location, 45, 1.6, 1.8, 1.6, 0.03);
+        center.getWorld().spawnParticle(Particle.REVERSE_PORTAL, location, 70, 1.5, 1.5, 1.5, 0.08);
+        center.getWorld().spawnParticle(Particle.COMPOSTER, location, 60, 1.8, 1.5, 1.8, 0.12);
     }
 
     @Override
@@ -95,9 +99,7 @@ public class ThornboundWarden extends BossInstance {
 
         if (owner == null || bossEntity == null) return;
 
-        if (bossEntity instanceof Ravager ravager) {
-            if (ravager.getTarget() == null || !ravager.getTarget().getUniqueId().equals(owner.getUniqueId())) ravager.setTarget(owner);
-        }
+        if (bossEntity instanceof Warden warden) warden.setAnger(owner, 150);
 
         updatePhase();
 
@@ -155,10 +157,15 @@ public class ThornboundWarden extends BossInstance {
 
         if (owner != null) {
             owner.sendMessage(color("&2&lWARDEN &8» &aThe corruption spreads through the arena!"));
-            owner.playSound(owner.getLocation(), Sound.ENTITY_RAVAGER_ROAR, 1.2f, 0.85f);
+            owner.playSound(owner.getLocation(), Sound.ENTITY_WARDEN_ROAR, 1.2f, 0.85f);
         }
 
-        bossEntity.getWorld().spawnParticle(Particle.COMPOSTER, bossEntity.getLocation(), 100, 3.0, 1.5, 3.0, 0.15);
+        Location location = bossEntity.getLocation().clone().add(0, 1, 0);
+
+        bossEntity.getWorld().spawnParticle(Particle.SCULK_SOUL, location, 70, 2.5, 2.0, 2.5, 0.05);
+        bossEntity.getWorld().spawnParticle(Particle.REVERSE_PORTAL, location, 90, 2.5, 2.0, 2.5, 0.10);
+        bossEntity.getWorld().spawnParticle(Particle.COMPOSTER, location, 100, 3.0, 1.5, 3.0, 0.15);
+
         abilities.shockwave();
     }
 
@@ -167,13 +174,17 @@ public class ThornboundWarden extends BossInstance {
 
         if (owner != null) {
             owner.sendMessage(color("&4&lENRAGED &8» &cThe Thornbound Warden unleashes the heart of the grove!"));
-            owner.playSound(owner.getLocation(), Sound.ENTITY_RAVAGER_ROAR, 1.5f, 1.2f);
+            owner.playSound(owner.getLocation(), Sound.ENTITY_WARDEN_ROAR, 1.5f, 1.2f);
         }
 
-        setAttribute(bossEntity, Attribute.MOVEMENT_SPEED, 0.34);
+        setAttribute(bossEntity, Attribute.MOVEMENT_SPEED, 0.30);
         setAttribute(bossEntity, Attribute.ATTACK_DAMAGE, 10.0);
 
-        bossEntity.getWorld().spawnParticle(Particle.COMPOSTER, bossEntity.getLocation(), 140, 4.0, 2.0, 4.0, 0.2);
+        Location location = bossEntity.getLocation().clone().add(0, 1, 0);
+
+        bossEntity.getWorld().spawnParticle(Particle.SCULK_SOUL, location, 120, 3.5, 2.5, 3.5, 0.08);
+        bossEntity.getWorld().spawnParticle(Particle.REVERSE_PORTAL, location, 140, 4.0, 2.5, 4.0, 0.14);
+        bossEntity.getWorld().spawnParticle(Particle.COMPOSTER, location, 140, 4.0, 2.0, 4.0, 0.2);
 
         abilities.thornstorm();
         abilities.shockwave();
@@ -181,11 +192,16 @@ public class ThornboundWarden extends BossInstance {
 
     @Override
     protected void onDefeated(Player killer) {
-        Location location = bossEntity.getLocation();
+        Location location = bossEntity.getLocation().clone();
 
-        location.getWorld().spawnParticle(Particle.COMPOSTER, location.clone().add(0, 1, 0), 180, 3.5, 2.0, 3.5, 0.25);
-        location.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, location.clone().add(0, 1, 0), 80, 2.5, 1.5, 2.5, 0.15);
-        location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.3f, 0.7f);
+        location.getWorld().strikeLightningEffect(location);
+        location.getWorld().strikeLightningEffect(location.clone().add(2, 0, 1));
+        location.getWorld().strikeLightningEffect(location.clone().add(-2, 0, -1));
+
+        location.getWorld().playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.5f, 0.65f);
+        location.getWorld().playSound(location, Sound.ENTITY_WARDEN_DEATH, 1.2f, 0.65f);
+
+        abilities.playDeathAnimation(location);
 
         if (killer != null) {
             killer.sendMessage("");
