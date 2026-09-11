@@ -120,6 +120,8 @@ public class MobZoneManager {
             double health = config.getDouble(path + ".health", 20.0);
             String modelId = config.getString(path + ".model");
 
+            if (modelId == null && id.equalsIgnoreCase("wandering_dead")) modelId = "wandering_dead";
+
             if (entityName == null) {
                 plugin.getLogger().warning("Mob " + id + " has no entity type.");
                 continue;
