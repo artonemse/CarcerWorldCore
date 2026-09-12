@@ -73,9 +73,14 @@ public class MobModelManager {
         entity.getPersistentDataContainer().set(mobTypeKey, PersistentDataType.STRING, modelId);
 
         try {
+            if (ModelEngineAPI.getBlueprint(modelId) == null) {
+                plugin.getLogger().warning("Model Engine did not load model '" + modelId + "'. Using the vanilla appearance.");
+                return false;
+            }
             ModeledEntity modeledEntity = ModelEngineAPI.getOrCreateModeledEntity(entity);
             ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
 
+            modeledEntity.setBaseEntityVisible(false);
             modeledEntity.addModel(activeModel, true);
             return true;
         } catch (Exception exception) {
