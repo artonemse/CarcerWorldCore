@@ -68,6 +68,7 @@ import Bosses.BossManager;
 import ResourcePack.ResourcePackCommand;
 import ResourcePack.ResourcePackListener;
 import ResourcePack.ResourcePackManager;
+import MobModels.MobModelManager;
 
 public final class CarcerWorldCore extends JavaPlugin {
 
@@ -81,6 +82,7 @@ public final class CarcerWorldCore extends JavaPlugin {
     private WeaponSkinManager weaponSkinManager;
     private WeaponSkinGUI weaponSkinGUI;
 
+    private MobModelManager mobModelManager;
 
     private QuestGUI questGUI;
 
@@ -280,6 +282,7 @@ public final class CarcerWorldCore extends JavaPlugin {
         // MOB SYSTEM
         // ================================
         mobSoulRewardManager = new MobSoulRewardManager(this);
+        mobModelManager = new MobModelManager(this);
 
         getServer().getPluginManager().registerEvents(new MobSoulRewardListener(this, mobSoulRewardManager), this);
         mobHealthBarManager = new MobHealthBarManager(this);
@@ -394,6 +397,11 @@ public final class CarcerWorldCore extends JavaPlugin {
 
     public ResourcePackManager getResourcePackManager() {
         return resourcePackManager;
+    }
+
+
+    public MobModelManager getMobModelManager() {
+        return mobModelManager;
     }
 
     public NPCManager getNPCManager() {

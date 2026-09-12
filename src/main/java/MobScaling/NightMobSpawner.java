@@ -29,7 +29,6 @@ public class NightMobSpawner {
 
     private static final int UNDERGROUND_TOLERANCE = 5;
 
-    private static final String SPIDER_MODEL = "whip-spider";
 
     public NightMobSpawner(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -55,7 +54,9 @@ public class NightMobSpawner {
         if (!isNight(world)) return;
         if (carcer.getNamedLocationManager().isSafeZone(player.getLocation())) return;
 
-        long nearbyMobs = player.getNearbyEntities(MOB_CHECK_RADIUS, MOB_CHECK_RADIUS, MOB_CHECK_RADIUS).stream().filter(entity -> entity instanceof Monster).count();
+        long nearbyMobs = player.getNearbyEntities(MOB_CHECK_RADIUS, MOB_CHECK_RADIUS, MOB_CHECK_RADIUS).stream()
+                .filter(entity -> entity instanceof Monster)
+                .count();
 
         if (nearbyMobs >= MAX_MOBS) return;
 
@@ -70,8 +71,6 @@ public class NightMobSpawner {
 
         LivingEntity mob = (LivingEntity) world.spawnEntity(spawnLocation, mobType.getEntityType());
 
-        applyCustomModel(mob);
-
         AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
 
         if (maxHealth != null) {
@@ -83,20 +82,7 @@ public class NightMobSpawner {
         mob.setCustomNameVisible(false);
 
         carcer.getMobSoulRewardManager().registerMob(mob, mobType);
-    }
-
-    private void applyCustomModel(LivingEntity mob) {
-        if (mob.getType() != EntityType.SPIDER) return;
-
-        try {
-            var modeledEntity = ModelEngineAPI.getOrCreateModeledEntity(mob);
-            var activeModel = ModelEngineAPI.createActiveModel(SPIDER_MODEL);
-
-            modeledEntity.addModel(activeModel, true);
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to apply ModelEngine model '" + SPIDER_MODEL + "' to spider.");
-            e.printStackTrace();
-        }
+        carcer.getMobModelManager().applyModel(mob, mobType.getId());
     }
 
     private Location findSpawnLocation(Player player) {
