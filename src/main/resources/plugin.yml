@@ -48,3 +48,6 @@ commands:
     description: Open chat cosmetics or manage cosmetic rewards.
     aliases: [ chatcosmetics ]
     usage: /chatcosmetic [colors|gradients|tags]
+  extraction:
+    description: Relic extraction parties and objectives.
+    usage: /extraction

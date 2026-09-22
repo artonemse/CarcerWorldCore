@@ -70,6 +70,8 @@ import ResourcePack.ResourcePackListener;
 import ResourcePack.ResourcePackManager;
 import MobModels.MobModelManager;
 import Cosmetics.Chat.ChatCosmetics;
+import Extractions.RelicExtractions;
+
 
 public final class CarcerWorldCore extends JavaPlugin {
 
@@ -373,6 +375,7 @@ public final class CarcerWorldCore extends JavaPlugin {
 
         getCommand("warp").setExecutor(new WarpCommand(warpManager));
         ChatCosmetics.install(this);
+        RelicExtractions.install(this);
         getLogger().info("[CarcerWorldCore] has been enabled!");
     }
 
