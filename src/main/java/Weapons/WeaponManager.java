@@ -260,12 +260,7 @@ public class WeaponManager {
                 (byte) 1
         );
         WeaponSkin selectedSkin = plugin.getWeaponSkinManager().getSelected(player);
-
-        if (selectedSkin != null) {
-            CustomModelDataComponent component = meta.getCustomModelDataComponent();
-            component.setFloats(List.of((float) selectedSkin.getCustomModelData()));
-            meta.setCustomModelDataComponent(component);
-        }
+        WeaponSkin.applyAppearance(meta, selectedSkin);
 
         item.setItemMeta(meta);
 

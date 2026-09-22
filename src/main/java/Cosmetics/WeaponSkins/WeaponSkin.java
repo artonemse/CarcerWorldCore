@@ -1,6 +1,11 @@
 package Cosmetics.WeaponSkins;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
+
 import java.util.Arrays;
+import java.util.List;
 
 public enum WeaponSkin {
 
@@ -54,9 +59,48 @@ public enum WeaponSkin {
         return scrapCost;
     }
 
+    public boolean usesImportedModel() {
+        return switch (this) {
+            case ANGEL_SWORD, FAIRY_GREATSWORD, ORC_SWORD, RUBY_SABER,
+                 SOULREAVER_SWORD, SOLSTICE, SWORD_OF_THE_RAVEN,
+                 TORRENTIAL_BLADE, TWILIGHTS_EDGE, VERDANT_EDGE -> true;
+            default -> false;
+        };
+    }
+
+    public NamespacedKey getItemModel() {
+        if (!usesImportedModel()) return null;
+
+        String modelId = this == RUBY_SABER ? "demonic_fire_sword" : id;
+        return new NamespacedKey("carcer_skins", modelId);
+    }
+
+    public static void applyAppearance(ItemMeta meta, WeaponSkin skin) {
+        if (meta == null) return;
+
+        // Clear previous model selectors when changing or removing a skin.
+        meta.setItemModel(null);
+        meta.setCustomModelDataComponent(null);
+
+        if (skin == null) return;
+
+        if (skin.usesImportedModel()) {
+            meta.setItemModel(skin.getItemModel());
+            return;
+        }
+
+        // Existing skins still use their original CustomModelData.
+        CustomModelDataComponent component = meta.getCustomModelDataComponent();
+        component.setFloats(List.of((float) skin.getCustomModelData()));
+        meta.setCustomModelDataComponent(component);
+    }
+
     public static WeaponSkin fromId(String id) {
         if (id == null) return null;
 
-        return Arrays.stream(values()).filter(skin -> skin.id.equalsIgnoreCase(id) || skin.name().equalsIgnoreCase(id)).findFirst().orElse(null);
+        return Arrays.stream(values())
+                .filter(skin -> skin.id.equalsIgnoreCase(id) || skin.name().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
     }
 }

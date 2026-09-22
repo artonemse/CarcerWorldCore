@@ -55,9 +55,7 @@ public class WeaponSkinGUI {
 
         meta.setDisplayName(color(skin.getDisplayName()));
 
-        CustomModelDataComponent component = meta.getCustomModelDataComponent();
-        component.setFloats(List.of((float) skin.getCustomModelData()));
-        meta.setCustomModelDataComponent(component);
+        WeaponSkin.applyAppearance(meta, skin);
 
         List<String> lore = new ArrayList<>();
         lore.add("");
