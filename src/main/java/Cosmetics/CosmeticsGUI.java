@@ -5,137 +5,101 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.UUID;
 
 public class CosmeticsGUI {
 
     public static final String TITLE = color("&8Cosmetics");
 
+    public static final class Menu implements InventoryHolder {
+        private final UUID owner;
+        private final Inventory inventory;
+
+        public Menu(Player player) {
+            owner = player.getUniqueId();
+            inventory = Bukkit.createInventory(this, 45, TITLE);
+        }
+
+        public UUID getOwner() {
+            return owner;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
+        }
+    }
+
     public void open(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 27, TITLE);
+        Menu menu = new Menu(player);
+        Inventory inventory = menu.getInventory();
 
-        fill(inventory);
+        ItemStack filler = item(Material.GRAY_STAINED_GLASS_PANE, " ");
 
-        inventory.setItem(10, createKillEffectsItem());
-        inventory.setItem(12, createTrailsItem());
-        inventory.setItem(14, createAurasItem());
-        inventory.setItem(16, createWeaponSkinsItem());
-        inventory.setItem(22, createBackItem());
+        for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, filler);
+
+        inventory.setItem(10, item(Material.FIREWORK_STAR, "&f&lKill Effects",
+                "&7&l| &fCustomize enemy defeat effects.",
+                "",
+                "&eClick to Open"));
+
+        inventory.setItem(12, item(Material.BLAZE_POWDER, "&f&lPlayer Trails",
+                "&7&l| &fLeave cosmetic particles behind you.",
+                "",
+                "&eClick to Open"));
+
+        inventory.setItem(14, item(Material.END_CRYSTAL, "&f&lAuras",
+                "&7&l| &fSurround yourself with effects.",
+                "",
+                "&cComing Soon"));
+
+        inventory.setItem(16, item(Material.NETHERITE_SWORD, "&f&lWeapon Skins",
+                "&7&l| &fCustomize your progression weapon.",
+                "",
+                "&eClick to Open"));
+
+        inventory.setItem(21, item(Material.WHITE_DYE, "&f&lChat Colors",
+                "&7&l| &fStandard Minecraft chat colors.",
+                "&7&l| &fPurchase using Scraps.",
+                "",
+                "&eClick to Open"));
+
+        inventory.setItem(23, item(Material.AMETHYST_SHARD, "&f&lPremium Gradients",
+                "&7&l| &fHex gradient chat colors.",
+                "&7&l| &fGem purchases and earned rewards.",
+                "",
+                "&eClick to Open"));
+
+        inventory.setItem(25, item(Material.NAME_TAG, "&f&lPlayer Tags",
+                "&7&l| &fShow a title beside your name.",
+                "&7&l| &fEarned through gameplay only.",
+                "",
+                "&eClick to Open"));
+
+        inventory.setItem(40, item(Material.ARROW, "&f&lBack",
+                "&7&l| &fReturn to the Weapon Menu."));
 
         player.openInventory(inventory);
     }
 
-    private ItemStack createKillEffectsItem() {
-        ItemStack item = new ItemStack(Material.FIREWORK_STAR);
+    private ItemStack item(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         if (meta == null) return item;
 
-        meta.setDisplayName(color("&d&lKill Effects"));
-
-        List<String> lore = new ArrayList<>();
-        lore.add(color("&7&l| &fCustomize what happens"));
-        lore.add(color("&7&l| &fwhen you defeat an enemy."));
-        lore.add("");
-        lore.add(color("&d&lClick to Open"));
-
-        meta.setLore(lore);
+        meta.setDisplayName(color(name));
+        meta.setLore(Arrays.stream(lore).map(CosmeticsGUI::color).toList());
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         item.setItemMeta(meta);
 
         return item;
-    }
-
-    private ItemStack createTrailsItem() {
-        ItemStack item = new ItemStack(Material.BLAZE_POWDER);
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta == null) return item;
-
-        meta.setDisplayName(color("&6&lPlayer Trails"));
-
-        List<String> lore = new ArrayList<>();
-        lore.add(color("&7&l| &fLeave cosmetic particles"));
-        lore.add(color("&7&l| &fbehind you while moving."));
-        lore.add("");
-        lore.add(color("&6&lClick to Open"));
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    private ItemStack createAurasItem() {
-        ItemStack item = new ItemStack(Material.END_CRYSTAL);
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta == null) return item;
-
-        meta.setDisplayName(color("&5&lAuras"));
-
-        List<String> lore = new ArrayList<>();
-        lore.add(color("&7&l| &fSurround yourself with"));
-        lore.add(color("&7&l| &funique cosmetic effects."));
-        lore.add("");
-        lore.add(color("&c&lComing Soon"));
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    private ItemStack createWeaponSkinsItem() {
-        ItemStack item = new ItemStack(Material.NETHERITE_SWORD);
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta == null) return item;
-
-        meta.setDisplayName(color("&b&lWeapon Skins"));
-
-        List<String> lore = new ArrayList<>();
-        lore.add(color("&7&l| &fChange the appearance"));
-        lore.add(color("&7&l| &fof your progression weapon."));
-        lore.add("");
-        lore.add(color("&b&lClick to Open"));
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    private ItemStack createBackItem() {
-        ItemStack item = new ItemStack(Material.ARROW);
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta == null) return item;
-
-        meta.setDisplayName(color("&f&lBack"));
-
-        List<String> lore = new ArrayList<>();
-        lore.add(color("&7&l| &fReturn to the Weapon Menu."));
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    private void fill(Inventory inventory) {
-        ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta = filler.getItemMeta();
-
-        if (meta != null) {
-            meta.setDisplayName(" ");
-            filler.setItemMeta(meta);
-        }
-
-        for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, filler);
     }
 
     private static String color(String text) {

@@ -44,3 +44,7 @@ commands:
     description: Manage the CarcerWorld resource pack.
     usage: /carcerpack
     permission: carcer.admin
+  chatcosmetic:
+    description: Open chat cosmetics or manage cosmetic rewards.
+    aliases: [ chatcosmetics ]
+    usage: /chatcosmetic [colors|gradients|tags]
