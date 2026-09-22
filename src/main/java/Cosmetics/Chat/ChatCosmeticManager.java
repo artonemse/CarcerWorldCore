@@ -110,9 +110,7 @@ public final class ChatCosmeticManager {
     }
 
     public boolean selected(Player player, ChatCosmetic cosmetic) {
-        return cosmetic.kind() == ChatCosmetic.Kind.TAG
-                ? selectedTag(player) == cosmetic
-                : selectedColor(player) == cosmetic;
+        return cosmetic.kind() == ChatCosmetic.Kind.TAG ? selectedTag(player) == cosmetic : selectedColor(player) == cosmetic;
     }
 
     private void addOwnership(Player player, ChatCosmetic cosmetic) {
@@ -147,12 +145,10 @@ public final class ChatCosmeticManager {
         if (cost < 0) return "§7Earn this cosmetic: §f" + requirement(cosmetic);
 
         boolean basic = cosmetic.kind() == ChatCosmetic.Kind.BASIC;
-        boolean paid = basic
-                ? plugin.getScrapManager().removeScraps(player, cost)
-                : plugin.getGemManager().removeGems(player, cost);
+        boolean paid = basic ? plugin.getSoulManager().removeSouls(player, cost) : plugin.getGemManager().removeGems(player, cost);
 
         if (!paid) {
-            String currency = basic ? "Scraps" : "Gems";
+            String currency = basic ? "Souls" : "Gems";
             return "§cYou need §f" + String.format("%,d", cost) + " " + currency + "§c.";
         }
 
@@ -162,7 +158,7 @@ public final class ChatCosmeticManager {
         });
 
         if (!saved) {
-            if (basic) plugin.getScrapManager().addScraps(player, cost);
+            if (basic) plugin.getSoulManager().addSouls(player, cost);
             else plugin.getGemManager().addGems(player, cost);
 
             return "§cCould not save the purchase. Your currency was refunded.";

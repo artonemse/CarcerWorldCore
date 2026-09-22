@@ -26,6 +26,7 @@ public final class ChatCosmeticGUI implements Listener {
     private final ChatCosmeticManager manager;
 
     private static final class Menu implements InventoryHolder {
+
         private final UUID owner;
         private final ChatCosmetic.Kind kind;
         private final List<ChatCosmetic> entries;
@@ -63,14 +64,14 @@ public final class ChatCosmeticGUI implements Listener {
             inventory.setItem(index, cosmeticItem(player, menu.entries.get(index)));
         }
 
-        inventory.setItem(45, item(Material.WHITE_DYE, "&f&lStandard Colors", List.of("&7&l| &fPurchased with Scraps.")));
+        inventory.setItem(45, item(Material.WHITE_DYE, "&f&lStandard Colors", List.of("&7&l| &fPurchased with Souls.")));
         inventory.setItem(46, item(Material.AMETHYST_SHARD, "&f&lPremium Gradients", List.of("&7&l| &fGem purchases and earned rewards.")));
         inventory.setItem(47, item(Material.NAME_TAG, "&f&lPlayer Tags", List.of("&7&l| &fEarned through gameplay only.")));
 
         inventory.setItem(49, item(Material.PAPER, "&f&lYour Chat Preview", List.of(
                 manager.preview(player),
                 "",
-                "&7&l| &fScraps: &e" + String.format("%,d", plugin.getScrapManager().getScraps(player)),
+                "&7&l| &fSouls: &e" + String.format("%,d", plugin.getSoulManager().getSouls(player)),
                 "&7&l| &fGems: &d" + String.format("%,d", plugin.getGemManager().getGems(player)),
                 "",
                 "&7&l| &fClick to preview in chat."
@@ -104,7 +105,7 @@ public final class ChatCosmeticGUI implements Listener {
             lore.add("&7&l| &fStatus: &cLocked");
 
             if (price >= 0) {
-                String currency = cosmetic.kind() == ChatCosmetic.Kind.BASIC ? "Scraps" : "Gems";
+                String currency = cosmetic.kind() == ChatCosmetic.Kind.BASIC ? "Souls" : "Gems";
                 lore.add("&7&l| &fCost: &e" + String.format("%,d", price) + " " + currency);
                 lore.add("&7&l| &fClick to purchase and equip.");
             } else {

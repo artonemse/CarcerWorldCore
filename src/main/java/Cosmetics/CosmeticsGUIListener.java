@@ -45,9 +45,9 @@ public class CosmeticsGUIListener implements Listener {
                     player.sendMessage("§5§lCOSMETICS §7§l| §fAuras are coming soon.");
                 }
                 case 16 -> plugin.getWeaponSkinGUI().open(player);
-                case 21 -> ChatCosmetics.get().gui().open(player, ChatCosmetic.Kind.BASIC);
-                case 23 -> ChatCosmetics.get().gui().open(player, ChatCosmetic.Kind.PREMIUM);
-                case 25 -> ChatCosmetics.get().gui().open(player, ChatCosmetic.Kind.TAG);
+                case 20 -> ChatCosmetics.get().gui().open(player, ChatCosmetic.Kind.BASIC);
+                case 22 -> ChatCosmetics.get().gui().open(player, ChatCosmetic.Kind.PREMIUM);
+                case 24 -> ChatCosmetics.get().gui().open(player, ChatCosmetic.Kind.TAG);
                 case 40 -> plugin.getWeaponMenu().open(player);
             }
         });

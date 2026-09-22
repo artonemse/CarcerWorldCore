@@ -64,19 +64,19 @@ public class CosmeticsGUI {
                 "",
                 "&eClick to Open"));
 
-        inventory.setItem(21, item(Material.WHITE_DYE, "&f&lChat Colors",
+        inventory.setItem(20, item(Material.WHITE_DYE, "&f&lChat Colors",
                 "&7&l| &fStandard Minecraft chat colors.",
-                "&7&l| &fPurchase using Scraps.",
+                "&7&l| &fPurchase using Souls.",
                 "",
                 "&eClick to Open"));
 
-        inventory.setItem(23, item(Material.AMETHYST_SHARD, "&f&lPremium Gradients",
-                "&7&l| &fHex gradient chat colors.",
+        inventory.setItem(22, item(Material.AMETHYST_SHARD, "&f&lPremium Gradients",
+                "&7&l| &fGradient chat colors.",
                 "&7&l| &fGem purchases and earned rewards.",
                 "",
                 "&eClick to Open"));
 
-        inventory.setItem(25, item(Material.NAME_TAG, "&f&lPlayer Tags",
+        inventory.setItem(24, item(Material.NAME_TAG, "&f&lPlayer Tags",
                 "&7&l| &fShow a title beside your name.",
                 "&7&l| &fEarned through gameplay only.",
                 "",
